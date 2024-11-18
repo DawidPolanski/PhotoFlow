@@ -45,7 +45,7 @@ const Home = () => {
           className={`w-full sticky top-0 bg-transparent z-10 transition-all duration-500 flex justify-center`}
         >
           <h1
-            className={`text-center font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-blue-400 bg-200% animate-gradient-wave text-center shadow-sm ${
+            className={`text-center font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-blue-400 bg-200% animate-gradient-wave text-center ${
               scrolling ? "text-2xl" : "text-5xl"
             } p-4 w-fit transition-all duration-500`}
           >

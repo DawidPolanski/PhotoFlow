@@ -7,6 +7,7 @@ export const fetchPhotos = async (query, page = 1) => {
 
   try {
     const response = await axios.get(url);
+    console.log("Dane z API Unsplash:", response.data.results);
     return response.data.results;
   } catch (error) {
     console.error("Błąd:", error);
