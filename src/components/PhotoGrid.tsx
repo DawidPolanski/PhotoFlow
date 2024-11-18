@@ -16,20 +16,24 @@ interface PhotoGridProps {
 const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
   return (
     <div className="w-full px-4">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full">
+      <div
+        className="columns-1 sm:columns-2 lg:columns-3 gap-4"
+        style={{
+          columnGap: "16px",
+        }}
+      >
         {photos.map((photo) => (
-          <div key={photo.id} className="relative group">
+          <div key={photo.id} className="mb-4 break-inside-avoid">
             <img
               src={photo.urls.small}
               alt={photo.alt_description}
-              className="w-full h-64 object-cover rounded-lg shadow-md"
+              className="w-full rounded-lg shadow-md"
+              style={{
+                display: "block",
+                width: "100%",
+                height: "auto",
+              }}
             />
-
-            <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-50 transition-opacity duration-300 ease-in-out flex items-center justify-center rounded-lg">
-              <p className="text-white text-sm p-2 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                {photo.description || "No description"}
-              </p>
-            </div>
           </div>
         ))}
       </div>
