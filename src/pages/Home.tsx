@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
-import { fetchPhotos } from "../../api/unsplash";
-import PhotoGrid from "../PhotoGrid";
-import MainLayout from "../layouts/MainLayout";
+import { fetchPhotos } from "../api/unsplash";
+import PhotoGrid from "../components/PhotoGrid";
+import MainLayout from "../components/layouts/MainLayout";
 
 const Home = () => {
   const [photos, setPhotos] = useState<any[]>([]);

@@ -1,3 +1,5 @@
+// src/api/unsplash.ts
+
 import axios from "axios";
 
 export const fetchPhotos = async (query: string, page = 1) => {
@@ -7,10 +9,24 @@ export const fetchPhotos = async (query: string, page = 1) => {
 
   try {
     const response = await axios.get(url);
-    console.log("Dane z API Unsplash:", response.data.results);
     return response.data.results;
   } catch (error) {
-    console.error("Błąd:", error);
+    console.error("Błąd podczas pobierania zdjęć:", error);
     return [];
+  }
+};
+
+// Add the fetchPhoto function
+export const fetchPhoto = async (id: string) => {
+  const url = `https://api.unsplash.com/photos/${id}?client_id=${
+    import.meta.env.VITE_UNSPLASH_ACCESS_KEY
+  }`;
+
+  try {
+    const response = await axios.get(url);
+    return response.data;
+  } catch (error) {
+    console.error("Błąd podczas pobierania zdjęcia:", error);
+    return null;
   }
 };

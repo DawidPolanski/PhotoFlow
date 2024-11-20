@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import { Link } from "react-router-dom";
+import HeartIcon from "../components/shared/assets/icons/HeartIcon";
 
 interface Photo {
   id: string;
@@ -33,11 +35,11 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
     const newColumns = Array.from({ length: columnCount }, () => []);
     columnHeights.current = Array(columnCount).fill(0);
 
-    photos.forEach((photo) => {
+    photos.forEach((photo, index) => {
       const shortestColumnIndex = columnHeights.current.indexOf(
         Math.min(...columnHeights.current)
       );
-      newColumns[shortestColumnIndex].push(photo);
+      newColumns[shortestColumnIndex].push({ ...photo, index });
 
       if (photoHeights[photo.id]) {
         columnHeights.current[shortestColumnIndex] += photoHeights[photo.id];
@@ -63,53 +65,50 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
             className="flex flex-col gap-4"
             style={{ flex: 1 }}
           >
-            {column.map((photo, rowIndex) => (
+            {column.map((photo) => (
               <div
                 key={photo.id}
                 onMouseEnter={() => setHoveredPhoto(photo)}
                 onMouseLeave={() => setHoveredPhoto(null)}
                 className="relative overflow-hidden rounded-lg shadow-lg"
               >
-                <span
-                  className="absolute top-2 left-2 bg-black bg-opacity-70 text-white text-xs font-semibold px-2 py-1 rounded"
-                  style={{ zIndex: 3 }}
-                >
-                  #{photos.indexOf(photo) + 1} -{" "}
-                  {photoHeights[photo.id]
-                    ? `${photoHeights[photo.id]}px`
-                    : "Loading..."}
-                </span>
+                <Link to={`/photo/${photo.id}`} className="block">
+                  <div className="relative">
+                    <img
+                      ref={(el) => imageRefs.current.push(el)}
+                      src={photo.urls.small}
+                      alt={photo.alt_description}
+                      className="w-full h-auto object-cover rounded-lg"
+                      onLoad={(e) => {
+                        const imgElement = e.currentTarget;
+                        handleImageLoad(photo.id, imgElement.clientHeight);
+                      }}
+                    />
 
-                <div className="relative w-full">
-                  {!photoHeights[photo.id] && (
-                    <div className="w-full h-48 bg-gray-300 animate-pulse rounded-lg"></div>
-                  )}
-                  <img
-                    ref={(el) => (imageRefs.current[rowIndex] = el)}
-                    src={photo.urls.small}
-                    alt={photo.alt_description}
-                    className={`w-full h-auto object-cover rounded-lg transition-opacity duration-300 ${
-                      photoHeights[photo.id] ? "opacity-100" : "opacity-0"
-                    }`}
-                    onLoad={(e) => {
-                      const imgElement = e.currentTarget;
-                      handleImageLoad(photo.id, imgElement.clientHeight);
-                    }}
-                  />
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-t from-black to-transparent opacity-0 transform transition-all duration-300 ${
+                        hoveredPhoto?.id === photo.id
+                          ? "opacity-50"
+                          : "opacity-0"
+                      }`}
+                    />
+                  </div>
+                </Link>
+
+                <div className="absolute top-2 left-2 bg-black text-white px-2 py-1 rounded">
+                  {photo.index + 1}
                 </div>
 
                 <div
-                  className={`absolute inset-0 transition-all duration-500 ease-out ${
-                    hoveredPhoto?.id === photo.id ? "opacity-100" : "opacity-0"
+                  className={`absolute top-2 right-2 p-2 transform transition-all duration-300 ease-in-out ${
+                    hoveredPhoto?.id === photo.id
+                      ? "opacity-100 translate-x-0"
+                      : "opacity-0 translate-x-[20px]"
                   }`}
-                  style={{
-                    background:
-                      hoveredPhoto?.id === photo.id
-                        ? "linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent 50%, rgba(0, 0, 0, 0.5))"
-                        : "transparent",
-                    zIndex: 1,
-                  }}
-                />
+                  style={{ zIndex: 3 }}
+                >
+                  <HeartIcon />
+                </div>
 
                 <div
                   className={`absolute bottom-0 left-0 p-3 text-white transform transition-all duration-300 ease-in-out ${
