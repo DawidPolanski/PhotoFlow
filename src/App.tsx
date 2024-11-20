@@ -1,29 +1,12 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Home from "./pages/Home";
-import PhotoDetail from "./pages/PhotoDetailPage"; // Importuj nowy komponent
-import MainLayout from "./components/layouts/MainLayout";
+import { BrowserRouter as Router } from "react-router-dom";
+import HomeRoutes from "./routes/HomeRoute";
+import PhotoRoutes from "./routes/PhotoRoute";
 
 function App() {
   return (
     <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <MainLayout>
-              <Home />
-            </MainLayout>
-          }
-        />
-        <Route
-          path="/photo/:id"
-          element={
-            <MainLayout>
-              <PhotoDetail />
-            </MainLayout>
-          }
-        />
-      </Routes>
+      <HomeRoutes />
+      <PhotoRoutes />
     </Router>
   );
 }

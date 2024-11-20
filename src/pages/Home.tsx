@@ -3,6 +3,22 @@ import { fetchPhotos } from "../api/unsplash";
 import PhotoGrid from "../components/PhotoGrid";
 import MainLayout from "../components/layouts/MainLayout";
 
+const useDebounce = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedValue(value);
+    }, delay);
+
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [value, delay]);
+
+  return debouncedValue;
+};
+
 const Home = () => {
   const [photos, setPhotos] = useState<any[]>([]);
   const [query, setQuery] = useState("");
@@ -13,12 +29,14 @@ const Home = () => {
   const loadingRef = useRef(false);
   const scrollPosition = useRef(0);
 
+  const debouncedQuery = useDebounce(query, 500);
+
   const loadPhotos = async () => {
     if (loadingRef.current) return;
     loadingRef.current = true;
     setLoading(true);
 
-    const fetchedPhotos = await fetchPhotos(query, page);
+    const fetchedPhotos = await fetchPhotos(debouncedQuery, page);
     setPhotos((prevPhotos) => [...prevPhotos, ...fetchedPhotos]);
 
     loadingRef.current = false;
@@ -45,8 +63,17 @@ const Home = () => {
   };
 
   useEffect(() => {
-    loadPhotos();
-  }, [query, page]);
+    if (debouncedQuery) {
+      setPage(1);
+      setPhotos([]);
+    }
+  }, [debouncedQuery]);
+
+  useEffect(() => {
+    if (debouncedQuery) {
+      loadPhotos();
+    }
+  }, [debouncedQuery, page]);
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
@@ -56,8 +83,14 @@ const Home = () => {
   const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newQuery = e.target.value;
     setQuery(newQuery);
-    setPage(1);
-    setPhotos([]);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      setPage(1);
+      setPhotos([]);
+      loadPhotos();
+    }
   };
 
   return (
@@ -90,6 +123,7 @@ const Home = () => {
             type="text"
             value={query}
             onChange={handleQueryChange}
+            onKeyDown={handleKeyPress}
             placeholder="Search for images..."
             className="w-full max-w-xl px-6 py-3 border border-transparent rounded-full shadow-lg text-gray-700 
                placeholder-gray-400 bg-gradient-to-r from-blue-100 via-purple-100 to-blue-100
