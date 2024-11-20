@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
 
-  // Funkcja do obsługi scrollowania
   const handleScroll = () => {
     if (window.scrollY > 0) {
       setIsScrolled(true);
@@ -13,11 +12,9 @@ const Navbar: React.FC = () => {
     }
   };
 
-  // Dodanie nasłuchiwania scrolla
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
 
-    // Czyszczenie po zakończeniu nasłuchiwania
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
@@ -33,7 +30,7 @@ const Navbar: React.FC = () => {
     >
       <div className="container mx-auto flex justify-between items-center">
         <Link to="/" className="text-2xl font-bold hover:text-blue-500">
-          MyApp
+          PhotoFlow
         </Link>
         <div className="space-x-6">
           <Link

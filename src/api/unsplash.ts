@@ -1,7 +1,7 @@
 import axios from "axios";
 
-export const fetchPhotos = async (query, page = 1) => {
-  const url = `https://api.unsplash.com/search/photos?query=${query}&page=${page}&client_id=${
+export const fetchPhotos = async (query: string, page = 1) => {
+  const url = `https://api.unsplash.com/search/photos?query=${query}&page=${page}&per_page=30&client_id=${
     import.meta.env.VITE_UNSPLASH_ACCESS_KEY
   }`;
 
