@@ -1,127 +1,114 @@
 import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
 import { fetchPhoto } from "../api/unsplash";
-import DownloadIcon from "../../src/components/shared/assets/icons/DownloadIcon";
-import LocationIcon from "../../src/components/shared/assets/icons/LocationIcon";
-import ViewIcon from "../../src/components/shared/assets/icons/ViewIcon";
-import HeartIcon from "../../src/components/shared/assets/icons/HeartIcon";
+import DownloadIcon from "../components/shared/assets/icons/DownloadIcon";
+import LocationIcon from "../components/shared/assets/icons/LocationIcon";
+import ViewIcon from "../components/shared/assets/icons/ViewIcon";
+import HeartIcon from "../components/shared/assets/icons/HeartIcon";
+import CloseIcon from "./shared/assets/icons/CloseIcon";
 
-interface PhotoDetailProps {}
+interface PhotoModalProps {
+  photoId: string;
+  onClose: () => void;
+}
 
-const PhotoDetail: React.FC<PhotoDetailProps> = () => {
-  const { id } = useParams();
+const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
   const [photo, setPhoto] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
     const loadPhoto = async () => {
-      if (!id) return;
       setLoading(true);
-      const fetchedPhoto = await fetchPhoto(id);
+      const fetchedPhoto = await fetchPhoto(photoId);
       setPhoto(fetchedPhoto);
       setLoading(false);
     };
 
     loadPhoto();
-  }, [id]);
+  }, [photoId]);
 
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-screen text-xl">
-        Loading...
-      </div>
-    );
-  }
+  const handleOutsideClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
+  const isPortrait = photo?.width < photo?.height;
 
   return (
-    <div className="w-full px-4 pt-16">
-      <div className="container mx-auto bg-white rounded-lg shadow-lg p-6">
-        <div className="flex flex-col lg:flex-row w-full">
-          <div className="lg:w-2/3 mb-8 lg:mb-0">
-            <img
-              src={photo?.urls?.regular}
-              alt={photo?.alt_description || "Photo description not available"}
-              className="w-full h-auto rounded-lg shadow-lg"
-              style={{ maxHeight: "80vh", objectFit: "cover" }}
-            />
-          </div>
+    <div
+      className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50 backdrop-blur-lg"
+      onClick={handleOutsideClick}
+    >
+      <button
+        onClick={onClose}
+        className="fixed top-4 right-4 z-50 p-0 m-0 border-none bg-transparent"
+      >
+        <CloseIcon className="w-8 h-8 text-white hover:opacity-80 transition-opacity" />
+      </button>
 
-          <div className="lg:w-1/3 lg:pl-12">
-            <div className="flex flex-wrap justify-between mb-6">
-              <div className="flex items-center w-full lg:w-auto mb-4 lg:mb-0">
-                <HeartIcon className="w-6 h-6 text-red-500 mr-2" />
-                <span className="text-lg">{photo?.likes || 0}</span>
-              </div>
-              <div className="flex items-center w-full lg:w-auto mb-4 lg:mb-0">
-                <ViewIcon className="w-6 h-6 text-gray-600 mr-2" />
-                <span className="text-lg">{photo?.views || 0}</span>
-              </div>
-              <div className="flex items-center w-full lg:w-auto mb-4 lg:mb-0">
-                <DownloadIcon className="w-6 h-6 text-gray-600 mr-2" />
-                <span className="text-lg">{photo?.downloads || 0}</span>
-              </div>
-              {photo?.location && (
-                <div className="flex items-center w-full lg:w-auto mb-4 lg:mb-0">
-                  <LocationIcon className="w-6 h-6 text-gray-600 mr-2" />
-                  <span className="text-lg">
-                    {photo?.location.name || "Unknown"}
-                  </span>
-                </div>
-              )}
-            </div>
-
-            <div className="text-gray-700 mb-6">
-              <h3 className="text-2xl font-medium">Description</h3>
-              <p>{photo?.description || "No description available"}</p>
-              {photo?.tags && photo.tags.length > 0 && (
-                <div className="mt-6">
-                  <h3 className="text-2xl font-medium">Tags</h3>
-                  <div className="flex flex-wrap">
-                    {photo.tags.map((tag: { title: string }) => (
-                      <span
-                        key={tag.title}
-                        className="text-lg text-blue-500 mr-2 mb-2"
-                      >
-                        #{tag.title}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+      <div
+        className={`flex ${
+          isPortrait
+            ? "w-[90%] lg:w-[80%] xl:w-[75%]"
+            : "w-[95%] lg:w-[90%] xl:w-[85%]"
+        } max-w-[1600px] max-h-[90vh] bg-white relative rounded-lg overflow-hidden shadow-lg`}
+      >
+        <div
+          className={`flex items-center justify-center bg-black ${
+            isPortrait ? "flex-[3]" : "flex-[4]"
+          }`}
+        >
+          <img
+            src={photo?.urls?.regular}
+            alt={photo?.alt_description || "Photo description not available"}
+            className={`h-full w-full object-contain ${
+              isPortrait ? "scale-105" : ""
+            }`}
+          />
         </div>
-        <div className="flex items-center mt-8 border-t pt-6">
-          <div className="mr-4">
-            <img
-              src={photo?.user?.profile_image?.medium}
-              alt={photo?.user?.username}
-              className="w-16 h-16 rounded-full border-2 border-gray-300 object-cover"
-              style={{ maxWidth: "none" }}
-            />
+
+        <div
+          className={`space-y-6 overflow-y-auto bg-white p-8 ${
+            isPortrait ? "flex-[2]" : "flex-[1.5]"
+          }`}
+        >
+          <div>
+            <h3 className="text-2xl font-medium mb-2">Description</h3>
+            <p>{photo?.description || "No description available"}</p>
           </div>
-          <div className="text-gray-700">
-            <h3 className="text-xl font-medium">User Information</h3>
-            <div className="mt-4">
-              <p className="text-lg">Username: {photo?.user?.username}</p>
-              <p className="text-lg">Name: {photo?.user?.name}</p>
-              {photo?.user?.location && (
-                <p className="text-lg">Location: {photo?.user?.location}</p>
-              )}
-              {photo?.user?.bio && (
-                <p className="text-lg">Bio: {photo?.user?.bio}</p>
-              )}
-              <p className="text-lg">
-                Portfolio:{" "}
-                <a
-                  href={photo?.user?.links?.portfolio}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:underline"
-                >
-                  {photo?.user?.links?.portfolio || "Not available"}
-                </a>
-              </p>
+
+          {photo?.tags && photo?.tags.length > 0 && (
+            <div>
+              <h4 className="text-xl font-medium mb-2">Tags</h4>
+              <div className="flex flex-wrap gap-2">
+                {photo.tags.map((tag: any, index: number) => (
+                  <span
+                    key={index}
+                    className="bg-gray-200 text-gray-800 text-sm px-3 py-1 rounded-full"
+                  >
+                    {tag.title}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center space-x-4">
+            <img
+              src={photo?.user?.profile_image?.small}
+              alt={photo?.user?.name}
+              className="w-12 h-12 rounded-full"
+            />
+            <div>
+              <h4 className="text-xl font-semibold">{photo?.user?.name}</h4>
+              <a
+                href={`https://unsplash.com/@${photo?.user?.username}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-sm text-blue-500 hover:underline"
+              >
+                View Profile
+              </a>
             </div>
           </div>
         </div>
@@ -130,4 +117,4 @@ const PhotoDetail: React.FC<PhotoDetailProps> = () => {
   );
 };
 
-export default PhotoDetail;
+export default PhotoModal;

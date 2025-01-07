@@ -1,6 +1,6 @@
 import React from "react";
 
-const ViewIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
+const DownloadIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -20,4 +20,4 @@ const ViewIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => {
     </svg>
   );
 };
-export default ViewIcon;
+export default DownloadIcon;
