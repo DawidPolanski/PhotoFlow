@@ -15,7 +15,7 @@ interface Photo {
       small: string;
     };
   };
-  likes: number; // Added likes property
+  likes: number;
 }
 
 interface PhotoGridProps {
@@ -101,7 +101,6 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
                   />
                 </div>
 
-                {/* Heart Icon and Likes */}
                 <div
                   className={`absolute top-2 right-2 flex items-center gap-1 p-2 transform transition-all duration-300 ease-in-out ${
                     hoveredPhoto?.id === photo.id
@@ -110,7 +109,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
                   }`}
                   style={{ zIndex: 3 }}
                 >
-                  <HeartIcon /> {/* White Heart Icon */}
+                  <HeartIcon />
                   <span className="text-white text-sm font-semibold">
                     {photo.likes}
                   </span>
