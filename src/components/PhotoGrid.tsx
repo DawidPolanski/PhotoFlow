@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from "react";
 import HeartIcon from "../components/shared/assets/icons/HeartIcon";
-import PhotoModal from "../components/PhotoDetail";
+import PhotoModal from "../components/PhotoModal";
 
 interface Photo {
   id: string;
   urls: {
     small: string;
+    regular: string;
   };
   alt_description: string;
   user: {
@@ -24,8 +25,7 @@ interface PhotoGridProps {
 
 const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
   const [hoveredPhoto, setHoveredPhoto] = useState<Photo | null>(null);
-  const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
   const columnCount = 5;
   const [columns, setColumns] = useState<Photo[][]>(
     Array.from({ length: columnCount }, () => [])
@@ -60,13 +60,12 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
     }));
   };
 
-  const openModal = (photoId: string) => {
-    setSelectedPhotoId(photoId);
-    setIsModalOpen(true);
+  const openModal = (photo: Photo) => {
+    setSelectedPhoto(photo);
   };
 
   const closeModal = () => {
-    setIsModalOpen(false);
+    setSelectedPhoto(null);
   };
 
   return (
@@ -78,7 +77,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
             className="flex flex-col gap-4"
             style={{ flex: 1 }}
           >
-            {column.map((photo, photoIndex) => (
+            {column.map((photo) => (
               <div
                 key={photo.id}
                 onMouseEnter={() => setHoveredPhoto(photo)}
@@ -86,7 +85,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
                 className="relative overflow-hidden rounded-lg shadow-lg group"
               >
                 <div
-                  onClick={() => openModal(photo.id)}
+                  onClick={() => openModal(photo)}
                   className="cursor-pointer"
                 >
                   <img
@@ -101,6 +100,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
                   />
                 </div>
 
+                {/* Like counter */}
                 <div
                   className={`absolute top-2 right-2 flex items-center gap-1 p-2 transform transition-all duration-300 ease-in-out ${
                     hoveredPhoto?.id === photo.id
@@ -115,6 +115,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
                   </span>
                 </div>
 
+                {/* User info */}
                 <div
                   className={`absolute bottom-0 left-0 p-3 text-white transform transition-all duration-300 ease-in-out ${
                     hoveredPhoto?.id === photo.id
@@ -140,8 +141,8 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
         ))}
       </div>
 
-      {isModalOpen && selectedPhotoId && (
-        <PhotoModal photoId={selectedPhotoId} onClose={closeModal} />
+      {selectedPhoto && (
+        <PhotoModal photo={selectedPhoto} onClose={closeModal} />
       )}
     </div>
   );

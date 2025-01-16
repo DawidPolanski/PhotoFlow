@@ -1,21 +1,5 @@
+import { cacheData, getCache } from "./cacheMiddleware";
 import axios from "axios";
-
-const cacheData = (key: string, data: any) => {
-  localStorage.setItem(key, JSON.stringify(data));
-  console.log(`Dane zapisane w cache pod kluczem: ${key}`, data);
-};
-
-const getCache = (key: string) => {
-  const cachedData = localStorage.getItem(key);
-  if (cachedData) {
-    console.log(
-      `Dane pobrane z cache pod kluczem: ${key}`,
-      JSON.parse(cachedData)
-    );
-    return JSON.parse(cachedData);
-  }
-  return null;
-};
 
 export const fetchPhotos = async (query: string, page = 1) => {
   const cacheKey = `photos_${query}_page_${page}`;

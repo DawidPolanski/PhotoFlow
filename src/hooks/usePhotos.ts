@@ -1,5 +1,5 @@
 import { useQuery } from "react-query";
-import { fetchPhotos } from "../api/unsplash";
+import { fetchPhotos } from "../api/useUnsplash";
 
 export const usePhotos = (query: string, page: number) => {
   return useQuery(["photos", query, page], () => fetchPhotos(query, page), {
