@@ -1,9 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import CloseIcon from "./shared/assets/icons/CloseIcon";
 import NewTabIcon from "./shared/assets/icons/NewTabIcon";
 import InfoIcon from "../components/shared/assets/icons/InfoIcon";
 import tippy, { followCursor } from "tippy.js";
 import "tippy.js/dist/tippy.css";
+import { fetchPhoto } from "../api/useUnsplash";
+import Spinner from "./ui/Spinner";
+interface Tag {
+  title: string;
+}
 
 interface Photo {
   id: string;
@@ -19,42 +24,88 @@ interface Photo {
     };
   };
   likes: number;
-  tags?: { title: string }[];
+  tags?: Tag[];
   created_at?: string;
   views?: number;
+  exif?: {
+    make?: string;
+    model?: string;
+    aperture?: string;
+    exposure_time?: string;
+    focal_length?: string;
+    iso?: string;
+  };
 }
 
 interface PhotoModalProps {
-  photo: Photo;
+  photoId: string;
   onClose: () => void;
 }
 
-const PhotoModal: React.FC<PhotoModalProps> = ({ photo, onClose }) => {
-  const isPortrait = photo.urls.regular.width < photo.urls.regular.height;
+const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
+  const [photo, setPhoto] = useState<Photo | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "auto";
+    const loadPhoto = async () => {
+      setLoading(true);
+      const fetchedPhoto = await fetchPhoto(photoId);
+      setPhoto(fetchedPhoto);
+      setLoading(false);
     };
-  }, []);
+
+    loadPhoto();
+  }, [photoId]);
 
   useEffect(() => {
-    tippy(".info-icon", {
-      content: `
-        <div class="text-left">
-          <p><strong>Likes:</strong> ${photo.likes || "N/A"}</p>
-          <p><strong>Views:</strong> ${photo.views || "N/A"}</p>
-        </div>
-      `,
-      allowHTML: true,
-      placement: "top",
-      theme: "translucent",
-      followCursor: true,
-      plugins: [followCursor],
-      animation: "scale-subtle",
-    });
+    if (photo?.exif && Object.keys(photo.exif).length > 0) {
+      const tooltipElement = document.querySelector(".info-icon");
+      tippy(tooltipElement, {
+        content: `
+          <div class="text-left">
+            <p><strong>Make:</strong> ${photo.exif.make || "N/A"}</p>
+            <p><strong>Model:</strong> ${photo.exif.model || "N/A"}</p>
+            <p><strong>Aperture:</strong> f/${photo.exif.aperture || "N/A"}</p>
+            <p><strong>Exposure:</strong> ${
+              photo.exif.exposure_time || "N/A"
+            }</p>
+            <p><strong>Focal Length:</strong> ${
+              photo.exif.focal_length || "N/A"
+            }mm</p>
+            <p><strong>ISO:</strong> ${photo.exif.iso || "N/A"}</p>
+          </div>
+        `,
+        allowHTML: true,
+        placement: "top",
+        theme: "translucent",
+        followCursor: true,
+        plugins: [followCursor],
+        animation: "scale-subtle",
+      });
+    }
   }, [photo]);
+
+  if (loading) {
+    return <Spinner />;
+  }
+
+  if (!photo) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+        <p className="text-white text-xl">Failed to load photo details.</p>
+      </div>
+    );
+  }
+
+  if (!photo) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+        <p className="text-white text-xl">Failed to load photo details.</p>
+      </div>
+    );
+  }
+
+  const isPortrait = photo.urls.regular.includes("portrait");
 
   return (
     <div
@@ -75,7 +126,6 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photo, onClose }) => {
             : "w-[95%] lg:w-[90%] xl:w-[85%]"
         } max-w-[1600px] max-h-[90vh] bg-white relative rounded-lg overflow-hidden shadow-lg`}
       >
-        {/* Left: Image */}
         <div className="relative group flex items-center justify-center bg-black">
           <img
             src={photo.urls.regular}
@@ -83,12 +133,10 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photo, onClose }) => {
             className="h-full w-full object-contain"
           />
 
-          {/* Info Icon */}
           <div className="absolute bottom-4 right-4 z-50 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out">
             <InfoIcon className="w-6 h-6 text-white info-icon select-none focus:outline-none" />
           </div>
 
-          {/* Download Icon */}
           <div className="absolute top-4 right-4 z-50 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out">
             <a
               href={photo.urls.regular}
@@ -100,13 +148,11 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photo, onClose }) => {
           </div>
         </div>
 
-        {/* Right: Details */}
         <div
           className={`space-y-6 overflow-y-auto bg-white px-8 py-6 ${
             isPortrait ? "flex-[2]" : "flex-[1.5]"
           } relative flex flex-col`}
         >
-          {/* User Info */}
           <div className="flex items-center space-x-4 border-b pb-4">
             <img
               src={photo.user.profile_image.medium}
@@ -126,57 +172,51 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photo, onClose }) => {
             </div>
           </div>
 
-          {/* Description */}
-          <div>
-            <h3 className="text-2xl font-medium mb-2">Description</h3>
-            <p>{photo.alt_description || "No description available"}</p>
-          </div>
-
-          {/* Tags */}
-          {photo.tags?.length > 0 && (
+          <div className="flex flex-col flex-grow">
             <div>
-              <h4 className="text-xl font-medium mb-2">Tags</h4>
-              <div className="flex flex-wrap gap-2">
-                {photo.tags.map((tag, index) => (
-                  <span
-                    key={index}
-                    className="bg-gray-200 text-gray-800 text-sm px-3 py-1 rounded-full"
-                  >
-                    {tag.title}
-                  </span>
-                ))}
-              </div>
+              <h3 className="text-2xl font-medium mb-2">Description</h3>
+              <p>{photo.alt_description || "No description available"}</p>
+              {photo.tags && photo.tags.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="text-xl font-medium mb-2">Tags</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {photo.tags.map((tag, index) => (
+                      <span
+                        key={index}
+                        className="bg-gray-200 text-gray-800 text-sm px-3 py-1 rounded-full"
+                      >
+                        {tag.title}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          )}
 
-          {/* Likes and Views */}
-          <div className="flex-grow" />
-          <div className="mt-2 pt-2 text-sm text-gray-500">
-            <div className="border-t border-gray-300 my-2" />
-            <div className="mt-2 flex flex-col space-y-1 items-start text-gray-800">
-              {photo.likes && (
-                <div className="flex items-center space-x-1 text-sm text-gray-700">
-                  <span>
-                    <strong>Likes: {photo.likes.toLocaleString()}</strong>
-                  </span>
-                </div>
-              )}
-              {photo.views && (
-                <div className="flex items-center space-x-1 text-sm text-gray-700">
-                  <span>
-                    <strong>Views: {photo.views.toLocaleString()}</strong>
-                  </span>
-                </div>
-              )}
-              {photo.created_at && (
-                <div className="mt-2 text-sm text-gray-500">
-                  {new Intl.DateTimeFormat("en-GB", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  }).format(new Date(photo.created_at))}
-                </div>
-              )}
+            <div className="mt-auto pt-4">
+              <div className="border-t border-gray-300 my-2" />
+              <div className="flex flex-col space-y-2 text-gray-700">
+                {photo.likes && (
+                  <div className="text-sm">
+                    <strong>Likes:</strong> {photo.likes.toLocaleString()}
+                  </div>
+                )}
+                {photo.views && (
+                  <div className="text-sm">
+                    <strong>Views:</strong> {photo.views.toLocaleString()}
+                  </div>
+                )}
+                {photo.created_at && (
+                  <div className="text-sm text-gray-500">
+                    <strong>Date:</strong>{" "}
+                    {new Intl.DateTimeFormat("en-GB", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    }).format(new Date(photo.created_at))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

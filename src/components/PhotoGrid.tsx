@@ -14,6 +14,7 @@ interface Photo {
     username: string;
     profile_image: {
       small: string;
+      medium: string;
     };
   };
   likes: number;
@@ -25,7 +26,7 @@ interface PhotoGridProps {
 
 const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
   const [hoveredPhoto, setHoveredPhoto] = useState<Photo | null>(null);
-  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
+  const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null); // Updated
   const columnCount = 5;
   const [columns, setColumns] = useState<Photo[][]>(
     Array.from({ length: columnCount }, () => [])
@@ -35,7 +36,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
   const imageRefs = useRef<(HTMLImageElement | null)[]>([]);
 
   useEffect(() => {
-    const newColumns = Array.from({ length: columnCount }, () => []);
+    const newColumns: Photo[][] = Array.from({ length: columnCount }, () => []);
     columnHeights.current = Array(columnCount).fill(0);
 
     photos.forEach((photo) => {
@@ -60,12 +61,12 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
     }));
   };
 
-  const openModal = (photo: Photo) => {
-    setSelectedPhoto(photo);
+  const openModal = (photoId: string) => {
+    setSelectedPhotoId(photoId); // Pass the ID of the selected photo
   };
 
   const closeModal = () => {
-    setSelectedPhoto(null);
+    setSelectedPhotoId(null);
   };
 
   return (
@@ -85,7 +86,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
                 className="relative overflow-hidden rounded-lg shadow-lg group"
               >
                 <div
-                  onClick={() => openModal(photo)}
+                  onClick={() => openModal(photo.id)}
                   className="cursor-pointer"
                 >
                   <img
@@ -99,8 +100,6 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
                     }}
                   />
                 </div>
-
-                {/* Like counter */}
                 <div
                   className={`absolute top-2 right-2 flex items-center gap-1 p-2 transform transition-all duration-300 ease-in-out ${
                     hoveredPhoto?.id === photo.id
@@ -114,8 +113,6 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
                     {photo.likes}
                   </span>
                 </div>
-
-                {/* User info */}
                 <div
                   className={`absolute bottom-0 left-0 p-3 text-white transform transition-all duration-300 ease-in-out ${
                     hoveredPhoto?.id === photo.id
@@ -141,8 +138,8 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
         ))}
       </div>
 
-      {selectedPhoto && (
-        <PhotoModal photo={selectedPhoto} onClose={closeModal} />
+      {selectedPhotoId && (
+        <PhotoModal photoId={selectedPhotoId} onClose={closeModal} />
       )}
     </div>
   );
