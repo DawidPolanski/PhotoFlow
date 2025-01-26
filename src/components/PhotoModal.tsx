@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import CloseIcon from "./shared/assets/icons/CloseIcon";
 import NewTabIcon from "./shared/assets/icons/NewTabIcon";
 import InfoIcon from "../components/shared/assets/icons/InfoIcon";
+import MagnifierIcon from "./shared/assets/icons/MagnifierIcon";
 import tippy, { followCursor } from "tippy.js";
 import "tippy.js/dist/tippy.css";
 import { fetchPhoto } from "../api/useUnsplash";
 import Spinner from "./ui/Spinner";
+
 interface Tag {
   title: string;
 }
@@ -45,6 +47,17 @@ interface PhotoModalProps {
 const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
   const [photo, setPhoto] = useState<Photo | null>(null);
   const [loading, setLoading] = useState(true);
+  const [magnifierMode, setMagnifierMode] = useState(false);
+  const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
 
   useEffect(() => {
     const loadPhoto = async () => {
@@ -85,6 +98,36 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
     }
   }, [photo]);
 
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
+        setMagnifierMode(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleMagnifierToggle = () => {
+    setMagnifierMode((prev) => !prev);
+  };
+
+  const handleMagnifierOff = () => {
+    setMagnifierMode(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!magnifierMode) return;
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    setMagnifierPosition({ x, y, width: rect.width, height: rect.height });
+  };
+
   if (loading) {
     return <Spinner />;
   }
@@ -97,20 +140,12 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
     );
   }
 
-  if (!photo) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-        <p className="text-white text-xl">Failed to load photo details.</p>
-      </div>
-    );
-  }
-
   const isPortrait = photo.urls.regular.includes("portrait");
-
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50"
       onClick={(e) => e.target === e.currentTarget && onClose()}
+      ref={modalRef}
     >
       <button
         onClick={onClose}
@@ -124,19 +159,48 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
           isPortrait
             ? "w-[90%] lg:w-[80%] xl:w-[75%]"
             : "w-[95%] lg:w-[90%] xl:w-[85%]"
-        } max-w-[1600px] max-h-[90vh] bg-white relative rounded-lg overflow-hidden shadow-lg`}
+        } max-w-[1600px] max-h-[90vh] relative rounded-lg overflow-hidden shadow-lg`}
       >
-        <div className="relative group flex items-center justify-center bg-black">
+        <div
+          className="relative group flex items-center justify-center bg-black"
+          onMouseMove={handleMouseMove}
+        >
           <img
             src={photo.urls.regular}
             alt={photo.alt_description || "Photo description"}
-            className="h-full w-full object-contain"
+            className={`h-full w-full object-contain ${
+              magnifierMode ? "cursor-none" : ""
+            }`}
+            onClick={handleMagnifierOff}
           />
+          {magnifierMode && (
+            <div
+              className="absolute pointer-events-none border-2 border-white"
+              style={{
+                width: "225px",
+                height: "225px",
+                border: "none",
+                transform: "translate(-50%, -50%)",
+                top: magnifierPosition.y,
+                left: magnifierPosition.x,
+                backgroundImage: `url(${photo.urls.regular})`,
+                backgroundSize: "900%", // zoom level
+                backgroundPosition: `${
+                  (magnifierPosition.x / magnifierPosition.width) * 100
+                }% ${(magnifierPosition.y / magnifierPosition.height) * 100}%`,
+              }}
+            />
+          )}
+          <div
+            onClick={handleMagnifierToggle}
+            className="absolute top-4 left-4 cursor-pointer opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out"
+          >
+            <MagnifierIcon className="w-5 h-5 text-white" />
+          </div>
 
           <div className="absolute bottom-4 right-4 z-50 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out">
             <InfoIcon className="w-6 h-6 text-white info-icon select-none focus:outline-none" />
           </div>
-
           <div className="absolute top-4 right-4 z-50 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out">
             <a
               href={photo.urls.regular}
@@ -208,7 +272,6 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
                 )}
                 {photo.created_at && (
                   <div className="text-sm text-gray-500">
-                    <strong>Date:</strong>{" "}
                     {new Intl.DateTimeFormat("en-GB", {
                       day: "numeric",
                       month: "long",
