@@ -95,18 +95,18 @@ const Home = () => {
     <MainLayout>
       <div className="flex flex-col items-center min-h-screen px-4 py-8 pt-24">
         <div
-          className={`w-full sticky top-0 bg-transparent z-10 transition-all duration-500 flex justify-center`}
+          className={`w-full sticky top-0 bg-transparent z-10 transition-all duration-300 flex justify-center`}
         >
           <h1
-            className={`text-center font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-blue-400 bg-200% animate-gradient-wave text-center transition-all duration-500 ${
-              scrolling ? "text-2xl" : "text-5xl"
-            } ${
-              scrolling ? "transform scale-90" : "transform scale-100"
+            className={`text-center font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-blue-400 bg-200% animate-gradient-wave text-center transition-all duration-300 ${
+              scrolling
+                ? "text-2xl translate-y-0"
+                : "text-5xl translate-y-[-30px]"
             } p-4 w-fit`}
           >
             Find beautiful images that{" "}
             <span
-              className={`font-dancing transition-all duration-500 ${
+              className={`font-dancing transition-all duration-300 ${
                 scrolling ? "text-3xl" : "text-6xl"
               }`}
             >

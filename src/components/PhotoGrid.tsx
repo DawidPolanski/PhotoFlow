@@ -26,7 +26,7 @@ interface PhotoGridProps {
 
 const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
   const [hoveredPhoto, setHoveredPhoto] = useState<Photo | null>(null);
-  const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null); // Updated
+  const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null);
   const columnCount = 5;
   const [columns, setColumns] = useState<Photo[][]>(
     Array.from({ length: columnCount }, () => [])
@@ -62,7 +62,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
   };
 
   const openModal = (photoId: string) => {
-    setSelectedPhotoId(photoId); // Pass the ID of the selected photo
+    setSelectedPhotoId(photoId);
   };
 
   const closeModal = () => {

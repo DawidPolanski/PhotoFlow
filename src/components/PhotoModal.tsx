@@ -121,11 +121,21 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!magnifierMode) return;
-    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    if (!magnifierMode || !modalRef.current) return;
+
+    const container = modalRef.current.querySelector(".relative.group");
+    if (!container) return;
+
+    const rect = container.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-    setMagnifierPosition({ x, y, width: rect.width, height: rect.height });
+
+    setMagnifierPosition({
+      x,
+      y,
+      width: rect.width,
+      height: rect.height,
+    });
   };
 
   if (loading) {
@@ -141,6 +151,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
   }
 
   const isPortrait = photo.urls.regular.includes("portrait");
+
   return (
     <div
       className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50"
@@ -153,7 +164,6 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
       >
         <CloseIcon className="w-8 h-8 text-white hover:opacity-80 transition-opacity" />
       </button>
-
       <div
         className={`flex ${
           isPortrait
@@ -162,7 +172,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
         } max-w-[1600px] max-h-[90vh] relative rounded-lg overflow-hidden shadow-lg`}
       >
         <div
-          className="relative group flex items-center justify-center bg-black"
+          className="relative group flex items-center justify-center bg-black cursor-default"
           onMouseMove={handleMouseMove}
         >
           <img
@@ -171,8 +181,11 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
             className={`h-full w-full object-contain ${
               magnifierMode ? "cursor-none" : ""
             }`}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMagnifierOff}
             onClick={handleMagnifierOff}
           />
+
           {magnifierMode && (
             <div
               className="absolute pointer-events-none border-2 border-white"
@@ -184,7 +197,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
                 top: magnifierPosition.y,
                 left: magnifierPosition.x,
                 backgroundImage: `url(${photo.urls.regular})`,
-                backgroundSize: "900%", // zoom level
+                backgroundSize: "900%",
                 backgroundPosition: `${
                   (magnifierPosition.x / magnifierPosition.width) * 100
                 }% ${(magnifierPosition.y / magnifierPosition.height) * 100}%`,
@@ -259,7 +272,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
 
             <div className="mt-auto pt-4">
               <div className="border-t border-gray-300 my-2" />
-              <div className="flex flex-col space-y-2 text-gray-700">
+              <div className="flex flex-col space-y-0.5 text-gray-700">
                 {photo.likes && (
                   <div className="text-sm">
                     <strong>Likes:</strong> {photo.likes.toLocaleString()}
