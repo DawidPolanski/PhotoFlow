@@ -48,7 +48,12 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
   const [photo, setPhoto] = useState<Photo | null>(null);
   const [loading, setLoading] = useState(true);
   const [magnifierMode, setMagnifierMode] = useState(false);
-  const [magnifierPosition, setMagnifierPosition] = useState({ x: 0, y: 0 });
+  const [magnifierPosition, setMagnifierPosition] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  });
   const modalRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -197,7 +202,9 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
                 top: magnifierPosition.y,
                 left: magnifierPosition.x,
                 backgroundImage: `url(${photo.urls.regular})`,
-                backgroundSize: "900%",
+                backgroundSize: `${magnifierPosition.width * 2}px ${
+                  magnifierPosition.height * 2
+                }px`,
                 backgroundPosition: `${
                   (magnifierPosition.x / magnifierPosition.width) * 100
                 }% ${(magnifierPosition.y / magnifierPosition.height) * 100}%`,
