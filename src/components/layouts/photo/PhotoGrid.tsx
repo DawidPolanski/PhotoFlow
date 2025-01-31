@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Photo } from "../types/Photo";
-import PhotoColumn from "./layouts/photo/PhotoColumn";
+import { Photo } from "../../../types/Photo";
+import PhotoColumn from "../photo/PhotoColumn";
 import PhotoModal from "./PhotoModal";
 
 interface PhotoGridProps {

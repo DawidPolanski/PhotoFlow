@@ -1,14 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import CloseIcon from "./shared/assets/icons/CloseIcon";
-import NewTabIcon from "./shared/assets/icons/NewTabIcon";
-import InfoIcon from "../components/shared/assets/icons/InfoIcon";
-import MagnifierIcon from "./shared/assets/icons/MagnifierIcon";
+import CloseIcon from "../../shared/assets/icons/CloseIcon";
+import NewTabIcon from "../../shared/assets/icons/NewTabIcon";
+import InfoIcon from "../../shared/assets/icons/InfoIcon";
+import MagnifierIcon from "../../shared/assets/icons/MagnifierIcon";
 import tippy, { followCursor } from "tippy.js";
 import "tippy.js/dist/tippy.css";
-import { fetchPhoto } from "../api/useUnsplash";
-import Spinner from "./ui/Spinner";
+import { fetchPhoto } from "../../../api/useUnsplash";
+import Spinner from "../../ui/Spinner";
 import ColorThief from "colorthief";
-import { Photo } from "../types/Photo";
+import { Photo } from "../../../types/Photo";
 
 interface PhotoModalProps {
   photoId: string;

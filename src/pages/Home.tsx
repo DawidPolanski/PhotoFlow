@@ -1,7 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import { fetchPhotos } from "../api/useUnsplash";
 import MainLayout from "../components/layouts/MainLayout";
-import PhotoGrid from "../components/PhotoGrid";
+import PhotoGrid from "../components/layouts/photo/PhotoGrid";
+import Header from "../components/layouts/Header";
+import SearchBar from "../components/layouts/search/SearchBar";
+import LoadingSkeleton from "../components/layouts/search/LoadingSkeleton";
 
 const useDebounce = (value: string, delay: number) => {
   const [debouncedValue, setDebouncedValue] = useState(value);
@@ -32,7 +35,11 @@ const Home = () => {
   const debouncedQuery = useDebounce(query, 500);
 
   const loadPhotos = async () => {
-    if (!debouncedQuery) return;
+    if (!debouncedQuery.trim()) {
+      setPhotos([]);
+      return;
+    }
+
     if (loadingRef.current) return;
 
     loadingRef.current = true;
@@ -77,9 +84,7 @@ const Home = () => {
   }, [debouncedQuery]);
 
   useEffect(() => {
-    if (debouncedQuery) {
-      loadPhotos();
-    }
+    loadPhotos();
   }, [debouncedQuery, page]);
 
   useEffect(() => {
@@ -98,56 +103,13 @@ const Home = () => {
   return (
     <MainLayout>
       <div className="flex flex-col items-center min-h-screen px-4 py-8 pt-24">
-        <div
-          className={`w-full sticky top-0 bg-transparent z-10 transition-all duration-100 flex justify-center ${
-            scrolling ? "top-0" : "top-[-30px]"
-          }`}
-        >
-          <h1
-            className={`text-center font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-blue-400 bg-200% animate-gradient-wave text-center transition-all duration-100 ${
-              scrolling ? "text-2xl" : "text-5xl"
-            } p-4 w-fit`}
-          >
-            Find beautiful images that{" "}
-            <span
-              className={`font-dancing transition-all duration-100 ${
-                scrolling ? "text-3xl" : "text-6xl"
-              }`}
-            >
-              inspire
-            </span>{" "}
-            your creativity!
-          </h1>
-        </div>
+        <Header scrolling={scrolling} />
 
         <div className="w-full flex justify-center mb-8 mt-8 sticky top-20 z-20">
-          <input
-            type="text"
-            value={query}
-            onChange={handleQueryChange}
-            placeholder="Search for images..."
-            className="w-full max-w-xl px-6 py-3 border border-transparent rounded-full shadow-lg text-gray-700 
-               placeholder-gray-400 bg-gradient-to-r from-blue-100 via-purple-100 to-blue-100
-               bg-200% animate-gradient-wave
-               focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-50
-               focus:scale-105
-               transition duration-200 ease-in-out transform"
-          />
+          <SearchBar query={query} onChange={handleQueryChange} />
         </div>
 
-        {loading && (
-          <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4 mt-6">
-            {[...Array(8)].map((_, index) => (
-              <div
-                key={index}
-                className="animate-pulse flex flex-col items-center justify-center gap-4"
-              >
-                <div className="bg-gray-300 h-64 w-full rounded-lg" />
-                <div className="bg-gray-300 h-4 w-2/3 rounded-md" />
-              </div>
-            ))}
-          </div>
-        )}
+        {loading && <LoadingSkeleton />}
 
         <PhotoGrid photos={photos} />
 

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { cacheMiddleware, cacheResponseMiddleware } from "./cacheMiddleware";
+import { rateLimitMiddleware } from "./rateLimitMiddleware";
 
 const axiosInstance = axios.create({
   baseURL: "https://api.unsplash.com",
@@ -9,6 +10,7 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use(cacheMiddleware);
+axiosInstance.interceptors.request.use(rateLimitMiddleware);
 axiosInstance.interceptors.response.use(cacheResponseMiddleware);
 
 export default axiosInstance;
