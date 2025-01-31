@@ -54,6 +54,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
           <PhotoColumn
             key={colIndex}
             photos={column}
+            hoveredPhoto={hoveredPhoto}
             onHover={setHoveredPhoto}
             onClick={openModal}
             onLoad={handleImageLoad}

@@ -4,6 +4,7 @@ import PhotoCard from "./PhotoCard";
 
 interface PhotoColumnProps {
   photos: Photo[];
+  hoveredPhoto: Photo | null;
   onHover: (photo: Photo | null) => void;
   onClick: (photoId: string) => void;
   onLoad: (photoId: string, height: number) => void;
@@ -11,6 +12,7 @@ interface PhotoColumnProps {
 
 const PhotoColumn: React.FC<PhotoColumnProps> = ({
   photos,
+  hoveredPhoto,
   onHover,
   onClick,
   onLoad,
@@ -20,6 +22,7 @@ const PhotoColumn: React.FC<PhotoColumnProps> = ({
       <PhotoCard
         key={photo.id}
         photo={photo}
+        hoveredPhoto={hoveredPhoto}
         onHover={onHover}
         onClick={onClick}
         onLoad={onLoad}

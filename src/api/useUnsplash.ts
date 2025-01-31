@@ -1,19 +1,13 @@
-import { cacheData, getCache } from "../utils/cacheUtils"; // Upewnij się, że importujesz z poprawnego pliku
+import { cacheData, getCache } from "../utils/cacheUtils";
 import axios from "axios";
 
 let remainingRequests = 50;
 let resetTime = Date.now() + 3600 * 1000;
 
-/**
- * Pobiera zdjęcia z Unsplash API na podstawie zapytania i numeru strony.
- * @param query - Zapytanie wyszukiwania.
- * @param page - Numer strony (domyślnie 1).
- * @returns Zwraca tablicę zdjęć lub pustą tablicę w przypadku błędu.
- */
 export const fetchPhotos = async (query: string, page = 1) => {
   if (!query.trim()) {
     console.log("Brak zapytania – nie pobieramy zdjęć.");
-    return []; // Zwracamy pustą tablicę, aby nie renderować domyślnych zdjęć
+    return [];
   }
 
   const cacheKey = `photos_${query}_page_${page}`;

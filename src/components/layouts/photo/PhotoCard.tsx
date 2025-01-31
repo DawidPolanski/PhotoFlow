@@ -4,7 +4,7 @@ import { Photo } from "../../../types/Photo";
 
 interface PhotoCardProps {
   photo: Photo;
-  hoveredPhoto: Photo | null; // Dodaj hoveredPhoto jako prop
+  hoveredPhoto: Photo | null;
   onHover: (photo: Photo | null) => void;
   onClick: (photoId: string) => void;
   onLoad: (photoId: string, height: number) => void;
@@ -36,7 +36,7 @@ const PhotoCard: React.FC<PhotoCardProps> = ({
     </div>
     <div
       className={`absolute top-2 right-2 flex items-center gap-1 p-2 transform transition-all duration-300 ease-in-out ${
-        hoveredPhoto?.id === photo.id // Użyj hoveredPhoto
+        hoveredPhoto?.id === photo.id
           ? "opacity-100 translate-x-0"
           : "opacity-0 translate-x-[20px]"
       }`}
@@ -47,7 +47,7 @@ const PhotoCard: React.FC<PhotoCardProps> = ({
     </div>
     <div
       className={`absolute bottom-0 left-0 p-3 text-white transform transition-all duration-300 ease-in-out ${
-        hoveredPhoto?.id === photo.id // Użyj hoveredPhoto
+        hoveredPhoto?.id === photo.id
           ? "opacity-100 translate-y-0"
           : "opacity-0 translate-y-8"
       }`}

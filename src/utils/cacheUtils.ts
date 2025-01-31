@@ -1,5 +1,5 @@
 const MAX_CACHE_SIZE = 100;
-const MAX_ITEM_SIZE = 1024 * 1024; // 1 MB
+const MAX_ITEM_SIZE = 1024 * 1024;
 
 const getAvailableStorage = async () => {
   if (navigator.storage && navigator.storage.estimate) {

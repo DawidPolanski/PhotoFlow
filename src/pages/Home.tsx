@@ -5,22 +5,7 @@ import PhotoGrid from "../components/layouts/photo/PhotoGrid";
 import Header from "../components/layouts/Header";
 import SearchBar from "../components/layouts/search/SearchBar";
 import LoadingSkeleton from "../components/layouts/search/LoadingSkeleton";
-
-const useDebounce = (value: string, delay: number) => {
-  const [debouncedValue, setDebouncedValue] = useState(value);
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
-
-  return debouncedValue;
-};
+import useDebounce from "../hooks/useDebounce";
 
 const Home = () => {
   const [photos, setPhotos] = useState<any[]>([]);
