@@ -243,7 +243,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
               target="_blank"
               rel="noopener noreferrer"
             >
-              <NewTabIcon className="w-8 h-8 text-blue-500 hover:text-blue-700 transition-all" />
+              <NewTabIcon className="w-6 h-6 text-blue-500 hover:text-blue-700 transition-all" />
             </a>
           </div>
         </div>

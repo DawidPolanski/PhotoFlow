@@ -21,12 +21,12 @@ const Home = () => {
   const debouncedQuery = useDebounce(query, 500);
 
   const categories = [
-    { name: "Góry", query: "mountains" },
-    { name: "Morze", query: "ocean" },
-    { name: "Miasta", query: "cities" },
-    { name: "Zwierzęta", query: "animals" },
-    { name: "Kwiaty", query: "flowers" },
-    { name: "Technologia", query: "technology" },
+    { name: "Mountains", query: "mountains" },
+    { name: "Ocean", query: "ocean" },
+    { name: "Cities", query: "cities" },
+    { name: "Animals", query: "animals" },
+    { name: "Flowers", query: "flowers" },
+    { name: "Technology", query: "technology" },
   ];
 
   const loadPhotos = async () => {
