@@ -7,6 +7,7 @@ import Header from "../components/layouts/Header";
 import SearchBar from "../components/layouts/search/SearchBar";
 import LoadingSkeleton from "../components/layouts/search/LoadingSkeleton";
 import useDebounce from "../hooks/useDebounce";
+import images from "../assets/CategoriesPhoto";
 
 const Home = () => {
   const [photos, setPhotos] = useState<any[]>([]);
@@ -20,14 +21,11 @@ const Home = () => {
 
   const debouncedQuery = useDebounce(query, 500);
 
-  const categories = [
-    { name: "Mountains", query: "mountains" },
-    { name: "Ocean", query: "ocean" },
-    { name: "Cities", query: "cities" },
-    { name: "Animals", query: "animals" },
-    { name: "Flowers", query: "flowers" },
-    { name: "Technology", query: "technology" },
-  ];
+  const categories = Object.keys(images).map((key) => ({
+    name: key,
+    query: key.toLowerCase(),
+    image: images[key as keyof typeof images],
+  }));
 
   const loadPhotos = async () => {
     if (loadingRef.current) return;
@@ -123,24 +121,29 @@ const Home = () => {
         </div>
 
         <div className="w-full max-w-4xl mb-8">
-          <h2 className="text-2xl font-semibold mb-4 text-center">
-            Popularne kategorie
-          </h2>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {categories.map((category) => (
               <motion.div
                 key={category.query}
-                className="p-4 bg-blue-100 rounded-lg cursor-pointer hover:bg-blue-200 transition-colors"
+                className="p-4 rounded-lg cursor-pointer hover:opacity-90 transition-opacity relative overflow-hidden"
                 onClick={() => handleCategoryClick(category.query)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.3 }}
+                style={{
+                  backgroundImage: `url(${category.image})`,
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  height: "200px",
+                }}
               >
-                <p className="text-center text-blue-800 font-medium">
-                  {category.name}
-                </p>
+                <div className="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center">
+                  <p className="text-center text-white font-medium text-lg">
+                    {category.name}
+                  </p>
+                </div>
               </motion.div>
             ))}
           </div>
