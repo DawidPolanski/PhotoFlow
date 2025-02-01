@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
-import { fetchPhotos } from "../api/useUnsplash";
+import { motion } from "framer-motion";
+import { fetchPhotos, fetchTrendingPhotos } from "../api/useUnsplash";
 import MainLayout from "../components/layouts/MainLayout";
 import PhotoGrid from "../components/layouts/photo/PhotoGrid";
 import Header from "../components/layouts/Header";
@@ -19,19 +20,36 @@ const Home = () => {
 
   const debouncedQuery = useDebounce(query, 500);
 
-  const loadPhotos = async () => {
-    if (!debouncedQuery.trim()) {
-      setPhotos([]);
-      return;
-    }
+  const categories = [
+    { name: "Góry", query: "mountains" },
+    { name: "Morze", query: "ocean" },
+    { name: "Miasta", query: "cities" },
+    { name: "Zwierzęta", query: "animals" },
+    { name: "Kwiaty", query: "flowers" },
+    { name: "Technologia", query: "technology" },
+  ];
 
+  const loadPhotos = async () => {
     if (loadingRef.current) return;
 
     loadingRef.current = true;
     setLoading(true);
 
     try {
-      const fetchedPhotos = await fetchPhotos(debouncedQuery, page);
+      let fetchedPhotos;
+      if (debouncedQuery.trim()) {
+        if (page === 1) {
+          setPhotos([]);
+        }
+
+        fetchedPhotos = await fetchPhotos(debouncedQuery, page);
+      } else {
+        if (page === 1) {
+          setPhotos([]);
+        }
+
+        fetchedPhotos = await fetchTrendingPhotos(page);
+      }
       setPhotos((prevPhotos) =>
         page === 1 ? fetchedPhotos : [...prevPhotos, ...fetchedPhotos]
       );
@@ -60,6 +78,11 @@ const Home = () => {
     } else {
       setScrolling(false);
     }
+  };
+
+  const handleCategoryClick = (categoryQuery: string) => {
+    setQuery(categoryQuery);
+    setPage(1);
   };
 
   useEffect(() => {
@@ -92,6 +115,30 @@ const Home = () => {
 
         <div className="w-full flex justify-center mb-8 mt-8 sticky top-20 z-20">
           <SearchBar query={query} onChange={handleQueryChange} />
+        </div>
+
+        <div className="w-full max-w-4xl mb-8">
+          <h2 className="text-2xl font-semibold mb-4 text-center">
+            Popularne kategorie
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {categories.map((category) => (
+              <motion.div
+                key={category.query}
+                className="p-4 bg-blue-100 rounded-lg cursor-pointer hover:bg-blue-200 transition-colors"
+                onClick={() => handleCategoryClick(category.query)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3 }}
+              >
+                <p className="text-center text-blue-800 font-medium">
+                  {category.name}
+                </p>
+              </motion.div>
+            ))}
+          </div>
         </div>
 
         {loading && <LoadingSkeleton />}

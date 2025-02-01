@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import { Photo } from "../../../types/Photo";
 import PhotoColumn from "../photo/PhotoColumn";
 import PhotoModal from "./PhotoModal";
@@ -49,7 +50,12 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
 
   return (
     <div className="w-full px-4 pt-16">
-      <div className="flex gap-4">
+      <motion.div
+        className="flex gap-4"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
         {columns.map((column, colIndex) => (
           <PhotoColumn
             key={colIndex}
@@ -60,7 +66,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
             onLoad={handleImageLoad}
           />
         ))}
-      </div>
+      </motion.div>
 
       {selectedPhotoId && (
         <PhotoModal photoId={selectedPhotoId} onClose={closeModal} />

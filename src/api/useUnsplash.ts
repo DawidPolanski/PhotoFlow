@@ -82,3 +82,39 @@ export const fetchPhoto = async (id: string) => {
     return null;
   }
 };
+
+export const fetchTrendingPhotos = async (page = 1) => {
+  const cacheKey = `trending_photos_page_${page}`;
+  const cachedPhotos = getCache(cacheKey);
+
+  if (cachedPhotos) {
+    console.log("Trendujące zdjęcia pobrane z cache");
+    return cachedPhotos;
+  }
+
+  if (remainingRequests <= 0 && Date.now() < resetTime) {
+    console.log("Limit requestów wyczerpany. Poczekaj do resetu.");
+    return [];
+  }
+
+  const url = `https://api.unsplash.com/photos?page=${page}&per_page=30&order_by=popular&client_id=${
+    import.meta.env.VITE_UNSPLASH_ACCESS_KEY
+  }`;
+
+  try {
+    const response = await axios.get(url);
+
+    remainingRequests = parseInt(response.headers["x-ratelimit-remaining"], 10);
+    resetTime = parseInt(response.headers["x-ratelimit-reset"], 10) * 1000;
+
+    const photos = response.data;
+
+    console.log("Trendujące zdjęcia pobrane z API:", photos);
+    cacheData(cacheKey, photos);
+
+    return photos;
+  } catch (error) {
+    console.error("Błąd podczas pobierania trendujących zdjęć:", error);
+    return [];
+  }
+};

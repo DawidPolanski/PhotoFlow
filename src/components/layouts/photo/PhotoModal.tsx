@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import CloseIcon from "../../shared/assets/icons/CloseIcon";
 import NewTabIcon from "../../shared/assets/icons/NewTabIcon";
 import InfoIcon from "../../shared/assets/icons/InfoIcon";
@@ -167,23 +168,31 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
   const isPortrait = photo.urls.regular.includes("portrait");
 
   return (
-    <div
+    <motion.div
       className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50"
       onClick={(e) => e.target === e.currentTarget && onClose()}
       ref={modalRef}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
     >
-      <button
+      <motion.button
         onClick={onClose}
         className="fixed top-4 right-4 z-50 p-0 m-0 border-none bg-transparent"
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
       >
         <CloseIcon className="w-8 h-8 text-white hover:opacity-80 transition-opacity" />
-      </button>
-      <div
+      </motion.button>
+      <motion.div
         className={`flex ${
           isPortrait
             ? "w-[90%] lg:w-[80%] xl:w-[75%]"
             : "w-[95%] lg:w-[90%] xl:w-[85%]"
         } max-w-[1600px] max-h-[90vh] relative rounded-lg overflow-hidden shadow-lg`}
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.3 }}
       >
         <div
           className="relative group flex items-center justify-center bg-black cursor-default"
@@ -287,13 +296,15 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
                 <div className="w-full mb-4">
                   <div className="flex gap-2 w-full">
                     {colors.map((color, index) => (
-                      <div
+                      <motion.div
                         key={index}
                         className="relative flex-1 h-12 rounded-lg shadow-md cursor-pointer"
                         style={{ backgroundColor: color }}
                         onMouseEnter={() => handleColorHover(index)}
                         onMouseLeave={handleColorLeave}
                         onClick={() => handleColorClick(color, index)}
+                        whileHover={{ scale: 1.05 }}
+                        transition={{ duration: 0.2 }}
                       >
                         {(activeColorIndex === index ||
                           copiedColorIndex === index) && (
@@ -303,7 +314,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
                             </span>
                           </div>
                         )}
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
@@ -333,8 +344,8 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 };
 
