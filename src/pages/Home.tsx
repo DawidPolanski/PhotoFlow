@@ -85,6 +85,11 @@ const Home = () => {
     setPage(1);
   };
 
+  const handleTagClick = (tag: string) => {
+    setQuery(tag);
+    setPage(1);
+  };
+
   useEffect(() => {
     if (debouncedQuery) {
       setPage(1);
@@ -143,7 +148,7 @@ const Home = () => {
 
         {loading && <LoadingSkeleton />}
 
-        <PhotoGrid photos={photos} />
+        <PhotoGrid photos={photos} onTagClick={handleTagClick} />
 
         {loading && (
           <div className="w-full flex justify-center py-4">

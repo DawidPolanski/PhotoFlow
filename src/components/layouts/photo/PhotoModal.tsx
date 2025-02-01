@@ -14,9 +14,14 @@ import { Photo } from "../../../types/Photo";
 interface PhotoModalProps {
   photoId: string;
   onClose: () => void;
+  onTagClick: (tag: string) => void;
 }
 
-const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
+const PhotoModal: React.FC<PhotoModalProps> = ({
+  photoId,
+  onClose,
+  onTagClick,
+}) => {
   const [photo, setPhoto] = useState<Photo | null>(null);
   const [loading, setLoading] = useState(true);
   const [magnifierMode, setMagnifierMode] = useState(false);
@@ -153,6 +158,11 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
     });
   };
 
+  const handleTagClick = (tag: string) => {
+    onTagClick(tag);
+    onClose();
+  };
+
   if (loading) {
     return <Spinner />;
   }
@@ -282,7 +292,8 @@ const PhotoModal: React.FC<PhotoModalProps> = ({ photoId, onClose }) => {
                     {photo.tags.map((tag, index) => (
                       <span
                         key={index}
-                        className="bg-gray-200 text-gray-800 text-sm px-3 py-1 rounded-full"
+                        className="bg-gray-200 text-gray-800 text-sm px-3 py-1 rounded-full cursor-pointer hover:bg-gray-300"
+                        onClick={() => handleTagClick(tag.title)}
                       >
                         {tag.title}
                       </span>

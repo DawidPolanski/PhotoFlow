@@ -6,9 +6,10 @@ import PhotoModal from "./PhotoModal";
 
 interface PhotoGridProps {
   photos: Photo[];
+  onTagClick: (tag: string) => void;
 }
 
-const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
+const PhotoGrid: React.FC<PhotoGridProps> = ({ photos, onTagClick }) => {
   const [hoveredPhoto, setHoveredPhoto] = useState<Photo | null>(null);
   const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null);
   const columnCount = 5;
@@ -69,7 +70,11 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos }) => {
       </motion.div>
 
       {selectedPhotoId && (
-        <PhotoModal photoId={selectedPhotoId} onClose={closeModal} />
+        <PhotoModal
+          photoId={selectedPhotoId}
+          onClose={closeModal}
+          onTagClick={onTagClick}
+        />
       )}
     </div>
   );
