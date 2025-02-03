@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import images from "../../../assets/CategoriesPhoto";
+import CloseIcon from "../../shared/assets/icons/CloseIcon";
 
 interface SearchBarProps {
   query: string;
@@ -52,7 +53,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
       setIsActive(false);
     }
   };
-
   const handleCategoryClick = (category: string) => {
     const formattedCategory = category.toLowerCase();
 
@@ -61,6 +61,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
     } as React.ChangeEvent<HTMLInputElement>);
 
     onCategoryClick(formattedCategory);
+  };
+
+  const handleClear = () => {
+    onChange({
+      target: { value: "" },
+    } as React.ChangeEvent<HTMLInputElement>);
   };
 
   return (
@@ -80,6 +86,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
                    focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-50
                    focus:scale-105 transition-all duration-150 ease-in-out transform"
       />
+      {query && (
+        <div
+          onClick={handleClear}
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer"
+        >
+          <CloseIcon className="w-5 h-5 text-purple-500 hover:text-purple-700 transition-colors duration-150" />
+        </div>
+      )}
       {isActive && (
         <div className="absolute top-full mt-2 w-full bg-white rounded-lg shadow-lg p-4 z-50">
           <div className="mb-4">
@@ -134,7 +148,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
                   }}
                   className="mt-2 text-sm text-red-500 hover:text-red-700"
                 >
-                  Clear Recent Searches
+                  Clear
                 </button>
               </>
             ) : (

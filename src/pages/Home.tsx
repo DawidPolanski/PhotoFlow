@@ -20,16 +20,9 @@ const Home = () => {
   const [scrolling, setScrolling] = useState(false);
   const [showCollections, setShowCollections] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
-
   const loadingRef = useRef(false);
   const scrollPosition = useRef(0);
-  useEffect(() => {
-    if (query.trim()) {
-      setPage(1);
-      setPhotos([]);
-      loadPhotos();
-    }
-  }, [query]);
+
   const updateRecentSearches = (searchTerm: string) => {
     setRecentSearches((prevSearches) => {
       const updatedSearches = [
@@ -75,10 +68,10 @@ const Home = () => {
     if (query.trim()) {
       setPage(1);
       setPhotos([]);
+      loadPhotos();
       updateRecentSearches(query);
     }
   };
-
   const loadCollections = async () => {
     if (collections.length === 0) {
       try {
@@ -114,6 +107,7 @@ const Home = () => {
     setPage(1);
     setPhotos([]);
     updateRecentSearches(categoryQuery);
+    handleSearch();
   };
 
   const handleTagClick = (tag: string) => {
@@ -123,7 +117,6 @@ const Home = () => {
     updateRecentSearches(tag);
     handleSearch();
   };
-
   useEffect(() => {
     loadPhotos();
   }, [page]);
