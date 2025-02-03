@@ -118,3 +118,39 @@ export const fetchTrendingPhotos = async (page = 1) => {
     return [];
   }
 };
+
+export const fetchCollections = async (page = 1, perPage = 10) => {
+  const cacheKey = `collections_page_${page}_perPage_${perPage}`;
+  const cachedCollections = getCache(cacheKey);
+
+  if (cachedCollections) {
+    console.log("Kolekcje pobrane z cache");
+    return cachedCollections;
+  }
+
+  if (remainingRequests <= 0 && Date.now() < resetTime) {
+    console.log("Limit requestów wyczerpany. Poczekaj do resetu.");
+    return [];
+  }
+
+  const url = `https://api.unsplash.com/collections?page=${page}&per_page=${perPage}&client_id=${
+    import.meta.env.VITE_UNSPLASH_ACCESS_KEY
+  }`;
+
+  try {
+    const response = await axios.get(url);
+
+    remainingRequests = parseInt(response.headers["x-ratelimit-remaining"], 10);
+    resetTime = parseInt(response.headers["x-ratelimit-reset"], 10) * 1000;
+
+    const collections = response.data;
+
+    console.log("Kolekcje pobrane z API:", collections);
+    cacheData(cacheKey, collections);
+
+    return collections;
+  } catch (error) {
+    console.error("Błąd podczas pobierania kolekcji:", error);
+    return [];
+  }
+};

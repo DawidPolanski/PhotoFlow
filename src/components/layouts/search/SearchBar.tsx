@@ -1,23 +1,150 @@
-import React from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
+import images from "../../../assets/CategoriesPhoto";
 
 interface SearchBarProps {
   query: string;
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onSearch: () => void;
+  recentSearches: string[];
+  onClearRecentSearches: () => void;
+  onCategoryClick: (category: string) => void;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ query, onChange }) => (
-  <input
-    type="text"
-    value={query}
-    onChange={onChange}
-    placeholder="Search for images..."
-    className="w-full max-w-xl px-6 py-3 border border-transparent rounded-full shadow-lg text-gray-700 
-               placeholder-gray-400 bg-gradient-to-r from-blue-100 via-purple-100 to-blue-100
-               bg-200% animate-gradient-wave
-               focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-50
-               focus:scale-105
-               transition duration-200 ease-in-out transform"
-  />
-);
+const SearchBar: React.FC<SearchBarProps> = ({
+  query,
+  onChange,
+  onSearch,
+  recentSearches,
+  onClearRecentSearches,
+  onCategoryClick,
+}) => {
+  const [isActive, setIsActive] = useState(false);
+  const searchBarRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        searchBarRef.current &&
+        !searchBarRef.current.contains(event.target as Node)
+      ) {
+        setIsActive(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const categoryImages = useMemo(() => {
+    console.log("Category images:", images);
+    return Object.keys(images).reduce((acc, category) => {
+      const formattedCategory = category.toLowerCase();
+      acc[formattedCategory] = images[category];
+      return acc;
+    }, {} as { [key: string]: string });
+  }, []);
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      onSearch();
+      setIsActive(false);
+    }
+  };
+
+  const handleCategoryClick = (category: string) => {
+    const formattedCategory = category.toLowerCase();
+
+    onChange({
+      target: { value: formattedCategory },
+    } as React.ChangeEvent<HTMLInputElement>);
+
+    onCategoryClick(formattedCategory);
+  };
+
+  return (
+    <div
+      className="w-full max-w-xl relative flex items-center gap-2"
+      ref={searchBarRef}
+    >
+      <input
+        type="text"
+        value={query}
+        onChange={onChange}
+        onKeyDown={handleKeyDown}
+        onFocus={() => setIsActive(true)}
+        placeholder="Search for images..."
+        className="w-full px-6 py-3 border border-transparent rounded-full shadow-lg text-gray-700 
+                   placeholder-gray-400 bg-gradient-to-r from-blue-100 via-purple-100 to-blue-100
+                   focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-50
+                   focus:scale-105 transition-all duration-150 ease-in-out transform"
+      />
+      {isActive && (
+        <div className="absolute top-full mt-2 w-full bg-white rounded-lg shadow-lg p-4 z-50">
+          <div className="mb-4">
+            <h3 className="text-lg font-semibold mb-2">Collections</h3>
+            <div className="grid grid-cols-2 gap-3">
+              {Object.keys(categoryImages)
+                .slice(0, 8)
+                .map((category) => (
+                  <div
+                    key={category}
+                    className="flex items-center p-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200 transition-all duration-150"
+                    onClick={() => handleCategoryClick(category)}
+                  >
+                    <img
+                      src={categoryImages[category]}
+                      alt={category}
+                      className="w-10 h-10 rounded-md object-cover mr-2"
+                      loading="lazy"
+                    />
+                    <span className="text-gray-700 text-sm font-medium">
+                      {category}
+                    </span>
+                  </div>
+                ))}
+            </div>
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold mb-2">Recent Searches</h3>
+            {recentSearches.length > 0 ? (
+              <>
+                <div className="grid grid-cols-2 gap-3">
+                  {recentSearches.slice(0, 8).map((searchTerm) => (
+                    <div
+                      key={searchTerm}
+                      className="p-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200 text-sm transition-all duration-150"
+                      onClick={() => {
+                        onChange({
+                          target: { value: searchTerm },
+                        } as React.ChangeEvent<HTMLInputElement>);
+                        onSearch();
+                        setIsActive(false);
+                      }}
+                    >
+                      {searchTerm}
+                    </div>
+                  ))}
+                </div>
+                <button
+                  onClick={() => {
+                    onClearRecentSearches();
+                    setIsActive(false);
+                  }}
+                  className="mt-2 text-sm text-red-500 hover:text-red-700"
+                >
+                  Clear Recent Searches
+                </button>
+              </>
+            ) : (
+              <p className="text-gray-500">No recent searches.</p>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default SearchBar;
