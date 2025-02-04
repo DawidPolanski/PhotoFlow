@@ -39,7 +39,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
   }, []);
 
   const categoryImages = useMemo(() => {
-    console.log("Category images:", images);
     return Object.keys(images).reduce((acc, category) => {
       const formattedCategory = category.toLowerCase();
       acc[formattedCategory] = images[category];
@@ -53,6 +52,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       setIsActive(false);
     }
   };
+
   const handleCategoryClick = (category: string) => {
     const formattedCategory = category.toLowerCase();
 

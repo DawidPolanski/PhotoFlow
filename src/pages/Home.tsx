@@ -28,6 +28,7 @@ interface Collection {
 const Home: React.FC = () => {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
@@ -67,13 +68,16 @@ const Home: React.FC = () => {
         fetchedPhotos = await fetchTrendingPhotos(page);
       }
 
-      const uniquePhotos = Array.from(
-        new Set([...photos, ...fetchedPhotos].map((photo) => photo.id))
-      ).map((id) => {
-        return [...photos, ...fetchedPhotos].find((photo) => photo.id === id);
-      });
+      const uniquePhotos = fetchedPhotos.filter(
+        (newPhoto) =>
+          !photos.some((existingPhoto) => existingPhoto.id === newPhoto.id)
+      );
 
-      setPhotos(uniquePhotos);
+      if (page === 1) {
+        setPhotos(uniquePhotos);
+      } else {
+        setPhotos((prevPhotos) => [...prevPhotos, ...uniquePhotos]);
+      }
     } catch (error) {
       console.error("Error fetching photos:", error);
       setError("Failed to load photos. Please try again later.");
@@ -91,6 +95,12 @@ const Home: React.FC = () => {
       updateRecentSearches(query);
     }
   }, [query]);
+
+  useEffect(() => {
+    if (page > 1) {
+      loadPhotos();
+    }
+  }, [page]);
 
   const loadCollections = async () => {
     if (collections.length === 0) {
@@ -148,8 +158,13 @@ const Home: React.FC = () => {
   }, [loading]);
 
   const handleQueryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newQuery = e.target.value;
-    setQuery(newQuery);
+    setSearchQuery(e.target.value);
+  };
+
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      setQuery(searchQuery);
+    }
   };
 
   return (
@@ -159,9 +174,9 @@ const Home: React.FC = () => {
 
         <div className="w-full flex justify-center mb-8 mt-8 sticky top-20 z-20">
           <SearchBar
-            query={query}
+            query={searchQuery}
             onChange={handleQueryChange}
-            onSearch={() => {}}
+            onSearch={handleSearch}
             recentSearches={recentSearches}
             onClearRecentSearches={clearRecentSearches}
             onCategoryClick={handleCategoryClick}
