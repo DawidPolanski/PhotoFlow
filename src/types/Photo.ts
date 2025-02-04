@@ -5,17 +5,18 @@ interface Tag {
 export interface Photo {
   id: string;
   urls: {
+    small: string;
     regular: string;
   };
   alt_description: string;
+  likes: number;
   user: {
     name: string;
-    username: string;
     profile_image: {
-      medium: string;
+      small: string;
+      normal: string;
     };
   };
-  likes: number;
   tags?: Tag[];
   created_at?: string;
   views?: number;

@@ -1,8 +1,8 @@
-import axiosInstance from "./axiosInstance";
+import axios from "axios";
 
 export const fetchPhotos = async (query: string, page: number) => {
   try {
-    const response = await axiosInstance.get("/search/photos", {
+    const response = await axios.get("/search/photos", {
       params: {
         query: query || "trending",
         page,
@@ -19,7 +19,7 @@ export const fetchPhotos = async (query: string, page: number) => {
 
 export const fetchTrendingPhotos = async (page: number) => {
   try {
-    const response = await axiosInstance.get("/photos", {
+    const response = await axios.get("/photos", {
       params: {
         page,
         per_page: 30,
@@ -32,3 +32,4 @@ export const fetchTrendingPhotos = async (page: number) => {
     return [];
   }
 };
+export default fetchPhotos;
