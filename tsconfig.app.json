@@ -25,5 +25,5 @@
     /* Ignore errors */
     "noEmitOnError": false
   },
-  "include": ["src"]
+  "include": ["src/**/*"]
 }
