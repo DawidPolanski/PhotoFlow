@@ -1,5 +1,5 @@
 const MAX_CACHE_SIZE = 100;
-const MAX_ITEM_SIZE = 1024 * 1024;
+const MAX_ITEM_SIZE = 1024 * 1024; // 1 MB
 
 const getAvailableStorage = async () => {
   if (navigator.storage && navigator.storage.estimate) {
@@ -9,11 +9,13 @@ const getAvailableStorage = async () => {
   return null;
 };
 
-const clearSpaceForNewItem = (newItemSize: number) => {
+const clearSpaceForNewItem = async (newItemSize: number) => {
   while (localStorage.length >= MAX_CACHE_SIZE || newItemSize > MAX_ITEM_SIZE) {
     let oldestKey = null;
     let oldestTimestamp = Infinity;
+    let oldestItemSize = 0;
 
+    // Check items in localStorage for the oldest item and their sizes
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key) {
@@ -21,12 +23,14 @@ const clearSpaceForNewItem = (newItemSize: number) => {
         if (item) {
           try {
             const parsedItem = JSON.parse(item);
+            const itemSize = new Blob([item]).size;
             if (
               parsedItem.timestamp &&
               parsedItem.timestamp < oldestTimestamp
             ) {
               oldestTimestamp = parsedItem.timestamp;
               oldestKey = key;
+              oldestItemSize = itemSize;
             }
           } catch (e) {
             console.error("❌ Błąd parsowania cache:", e);
@@ -35,9 +39,43 @@ const clearSpaceForNewItem = (newItemSize: number) => {
       }
     }
 
+    // Check if the item in sessionStorage should be deleted next
+    if (!oldestKey && sessionStorage.length > 0) {
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const key = sessionStorage.key(i);
+        if (key) {
+          const item = sessionStorage.getItem(key);
+          if (item) {
+            try {
+              const parsedItem = JSON.parse(item);
+              const itemSize = new Blob([item]).size;
+              if (
+                parsedItem.timestamp &&
+                parsedItem.timestamp < oldestTimestamp
+              ) {
+                oldestTimestamp = parsedItem.timestamp;
+                oldestKey = key;
+                oldestItemSize = itemSize;
+              }
+            } catch (e) {
+              console.error("❌ Błąd parsowania cache w sessionStorage:", e);
+            }
+          }
+        }
+      }
+    }
+
+    // Remove the oldest item to make space
     if (oldestKey) {
-      localStorage.removeItem(oldestKey);
-      console.log(`🗑 Usunięto najstarszy element: ${oldestKey}`);
+      if (oldestItemSize <= MAX_ITEM_SIZE) {
+        localStorage.removeItem(oldestKey);
+        console.log(`🗑 Usunięto najstarszy element: ${oldestKey}`);
+      } else {
+        sessionStorage.removeItem(oldestKey);
+        console.log(
+          `🗑 Usunięto najstarszy element z sessionStorage: ${oldestKey}`
+        );
+      }
     } else {
       break;
     }
@@ -62,7 +100,7 @@ export const cacheData = async (key: string, data: any) => {
     const availableStorage = await getAvailableStorage();
     if (availableStorage !== null && availableStorage < newItemSize) {
       console.warn("⚠ Brak miejsca w localStorage. Zwolnienie miejsca...");
-      clearSpaceForNewItem(newItemSize);
+      await clearSpaceForNewItem(newItemSize);
     }
 
     localStorage.setItem(key, serializedData);
