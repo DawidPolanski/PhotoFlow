@@ -1,16 +1,18 @@
 import React from "react";
 
 const LoadingSkeleton: React.FC = () => (
-  <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 px-4 mt-6">
-    {[...Array(8)].map((_, index) => (
-      <div
-        key={index}
-        className="animate-pulse flex flex-col items-center justify-center gap-4"
-      >
-        <div className="bg-gray-300 h-64 w-full rounded-lg" />
-        <div className="bg-gray-300 h-4 w-2/3 rounded-md" />
+  <div className="animate-pulse relative overflow-hidden rounded-lg shadow-lg">
+    <div className="bg-gray-300 h-64 w-full rounded-lg" />
+    <div className="absolute top-2 right-2 flex items-center gap-1 p-2">
+      <div className="bg-gray-400 w-6 h-6 rounded-full" />
+      <div className="bg-gray-400 h-4 w-8 rounded-md" />
+    </div>
+    <div className="absolute bottom-0 left-0 p-3">
+      <div className="flex items-center space-x-2">
+        <div className="bg-gray-400 w-8 h-8 rounded-full" />
+        <div className="bg-gray-400 h-4 w-20 rounded-md" />
       </div>
-    ))}
+    </div>
   </div>
 );
 

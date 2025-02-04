@@ -56,6 +56,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos, onTagClick }) => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
+        aria-label="Photo grid"
       >
         {columns.map((column, colIndex) => (
           <PhotoColumn

@@ -13,7 +13,11 @@ interface PhotoColumnProps {
 
 const PhotoColumn: React.FC<PhotoColumnProps> = memo(
   ({ photos, hoveredPhoto, onHover, onClick, onLoad }) => (
-    <div className="flex flex-col gap-4" style={{ flex: 1 }}>
+    <div
+      className="flex flex-col gap-4"
+      style={{ flex: 1 }}
+      aria-label="Photo column"
+    >
       {photos.length === 0 ? (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -25,7 +29,7 @@ const PhotoColumn: React.FC<PhotoColumnProps> = memo(
       ) : (
         photos.map((photo, index) => (
           <motion.div
-            key={photo.id}
+            key={`${photo.id}_${photo.created_at}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}

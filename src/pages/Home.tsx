@@ -11,15 +11,30 @@ import Header from "../components/layouts/Header";
 import SearchBar from "../components/layouts/search/SearchBar";
 import LoadingSkeleton from "../components/layouts/search/LoadingSkeleton";
 
-const Home = () => {
-  const [photos, setPhotos] = useState<any[]>([]);
-  const [collections, setCollections] = useState<any[]>([]);
+interface Photo {
+  id: string;
+  urls: { small: string };
+  alt_description: string;
+  likes: number;
+  user: { name: string; profile_image: { small: string } };
+}
+
+interface Collection {
+  id: string;
+  title: string;
+  cover_photo: { urls: { small: string } };
+}
+
+const Home: React.FC = () => {
+  const [photos, setPhotos] = useState<Photo[]>([]);
+  const [collections, setCollections] = useState<Collection[]>([]);
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [scrolling, setScrolling] = useState(false);
   const [showCollections, setShowCollections] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
   const loadingRef = useRef(false);
   const scrollPosition = useRef(0);
 
@@ -42,6 +57,7 @@ const Home = () => {
 
     loadingRef.current = true;
     setLoading(true);
+    setError(null);
 
     try {
       let fetchedPhotos;
@@ -51,27 +67,31 @@ const Home = () => {
         fetchedPhotos = await fetchTrendingPhotos(page);
       }
 
-      if (page === 1) {
-        setPhotos(fetchedPhotos);
-      } else {
-        setPhotos((prevPhotos) => [...prevPhotos, ...fetchedPhotos]);
-      }
+      const uniquePhotos = Array.from(
+        new Set([...photos, ...fetchedPhotos].map((photo) => photo.id))
+      ).map((id) => {
+        return [...photos, ...fetchedPhotos].find((photo) => photo.id === id);
+      });
+
+      setPhotos(uniquePhotos);
     } catch (error) {
       console.error("Error fetching photos:", error);
+      setError("Failed to load photos. Please try again later.");
     } finally {
       loadingRef.current = false;
       setLoading(false);
     }
   };
 
-  const handleSearch = () => {
+  useEffect(() => {
     if (query.trim()) {
       setPage(1);
       setPhotos([]);
       loadPhotos();
       updateRecentSearches(query);
     }
-  };
+  }, [query]);
+
   const loadCollections = async () => {
     if (collections.length === 0) {
       try {
@@ -104,26 +124,19 @@ const Home = () => {
 
   const handleCategoryClick = (categoryQuery: string) => {
     setQuery(categoryQuery);
-    setPage(1);
-    setPhotos([]);
-    updateRecentSearches(categoryQuery);
-    handleSearch();
   };
 
   const handleTagClick = (tag: string) => {
     setQuery(tag);
-    setPage(1);
-    setPhotos([]);
-    updateRecentSearches(tag);
-    handleSearch();
   };
+
   useEffect(() => {
     loadPhotos();
   }, [page]);
 
   useEffect(() => {
     loadCollections();
-  }, [collections]);
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
@@ -148,12 +161,14 @@ const Home = () => {
           <SearchBar
             query={query}
             onChange={handleQueryChange}
-            onSearch={handleSearch}
+            onSearch={() => {}}
             recentSearches={recentSearches}
             onClearRecentSearches={clearRecentSearches}
             onCategoryClick={handleCategoryClick}
           />
         </div>
+
+        {error && <div className="text-red-500 text-center">{error}</div>}
 
         {showCollections ? (
           <div className="w-full max-w-4xl mb-8">
