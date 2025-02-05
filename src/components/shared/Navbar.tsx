@@ -35,7 +35,6 @@ const Navbar: React.FC = () => {
           className="text-2xl font-bold hover:text-blue-500 flex items-center"
         >
           <img src={LogoIcon} alt="PhotoFlow Logo" className="h-8 mr-2" />{" "}
-          {/* Dodaj obraz obok tekstu */}
           PhotoFlow
         </Link>
         <div className="space-x-6">
