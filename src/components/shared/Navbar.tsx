@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import LogoIcon from "../../assets/LogoPhoto/LogoIcon.png";
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
@@ -29,7 +30,12 @@ const Navbar: React.FC = () => {
       } p-4 fixed w-full top-0 left-0 z-10 transition-all duration-300 ease-in-out`}
     >
       <div className="container mx-auto flex justify-between items-center">
-        <Link to="/" className="text-2xl font-bold hover:text-blue-500">
+        <Link
+          to="/"
+          className="text-2xl font-bold hover:text-blue-500 flex items-center"
+        >
+          <img src={LogoIcon} alt="PhotoFlow Logo" className="h-8 mr-2" />{" "}
+          {/* Dodaj obraz obok tekstu */}
           PhotoFlow
         </Link>
         <div className="space-x-6">
