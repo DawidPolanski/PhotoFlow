@@ -39,22 +39,10 @@ const Navbar: React.FC = () => {
         </Link>
         <div className="space-x-6">
           <Link
-            to="/"
-            className="hover:text-blue-500 transition-all duration-300"
-          >
-            Home
-          </Link>
-          <Link
-            to="/about"
-            className="hover:text-blue-500 transition-all duration-300"
-          >
-            About
-          </Link>
-          <Link
             to="/contact"
             className="hover:text-blue-500 transition-all duration-300"
           >
-            Contact
+            Colection
           </Link>
         </div>
       </div>

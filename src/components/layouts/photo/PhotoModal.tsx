@@ -9,7 +9,6 @@ import "tippy.js/dist/tippy.css";
 import { fetchPhoto } from "../../../api/useUnsplash";
 import Spinner from "../../ui/Spinner";
 import ColorThief from "colorthief";
-
 import { Photo } from "../../../types/Photo";
 
 interface PhotoModalProps {
@@ -39,7 +38,6 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
-
     return () => {
       document.body.style.overflow = "";
     };
@@ -52,7 +50,6 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       setPhoto(fetchedPhoto);
       setLoading(false);
     };
-
     loadPhoto();
   }, [photoId]);
 
@@ -61,7 +58,6 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       const img = new Image();
       img.src = photo.urls.regular;
       img.crossOrigin = "Anonymous";
-
       img.onload = () => {
         const colorThief = new ColorThief();
         const palette = colorThief.getPalette(img, 6);
@@ -108,9 +104,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
         setMagnifierMode(false);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -126,14 +120,11 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!magnifierMode || !modalRef.current) return;
-
     const container = modalRef.current.querySelector(".relative.group");
     if (!container) return;
-
     const rect = container.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
-
     setMagnifierPosition({
       x,
       y,
@@ -176,11 +167,11 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     );
   }
 
-  const isPortrait = photo.urls.regular.includes("portrait");
+  const isPortrait = photo.height > photo.width;
 
   return (
     <motion.div
-      className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50"
+      className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 overflow-y-auto"
       onClick={(e) => e.target === e.currentTarget && onClose()}
       ref={modalRef}
       initial={{ opacity: 0 }}
@@ -196,17 +187,15 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
         <CloseIcon className="w-8 h-8 text-white hover:opacity-80 transition-opacity" />
       </motion.button>
       <motion.div
-        className={`flex ${
-          isPortrait
-            ? "w-[90%] lg:w-[80%] xl:w-[75%]"
-            : "w-[95%] lg:w-[90%] xl:w-[85%]"
-        } max-w-[1600px] max-h-[90vh] relative rounded-lg overflow-hidden shadow-lg`}
+        className={`flex flex-col lg:flex-row w-[90%] lg:w-[80%] xl:w-[75%] max-w-[1600px] max-h-[90vh] relative rounded-lg overflow-y-auto shadow-lg bg-white`} // Dodano overflow-y-auto
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.3 }}
       >
         <div
-          className="relative group flex items-center justify-center bg-black cursor-default"
+          className={`relative group flex items-center justify-center bg-black cursor-default ${
+            isPortrait ? "h-auto" : "h-auto"
+          }`}
           onMouseMove={handleMouseMove}
         >
           <img
@@ -258,9 +247,10 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
             </a>
           </div>
         </div>
+
         <div
-          className={`space-y-6 overflow-y-auto bg-white px-8 py-6 ${
-            isPortrait ? "flex-[2]" : "flex-[1.5]"
+          className={`space-y-6 bg-white px-8 py-6 ${
+            isPortrait ? "lg:flex-[2]" : "lg:flex-[1.5]"
           } relative flex flex-col`}
         >
           <div className="flex items-center space-x-4 border-b pb-4">

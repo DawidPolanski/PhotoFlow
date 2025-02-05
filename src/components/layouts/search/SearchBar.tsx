@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import images from "../../../assets/CategoriesPhoto";
 import CloseIcon from "../../shared/assets/icons/CloseIcon";
 
@@ -38,35 +38,25 @@ const SearchBar: React.FC<SearchBarProps> = ({
     };
   }, []);
 
-  const categoryImages = useMemo(() => {
-    return Object.keys(images).reduce((acc, category) => {
-      const formattedCategory = category.toLowerCase();
-      acc[formattedCategory] = images[category];
-      return acc;
-    }, {} as { [key: string]: string });
-  }, []);
-
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       onSearch();
+      setIsActive(false);
+    } else if (e.key === "Escape") {
       setIsActive(false);
     }
   };
 
   const handleCategoryClick = (category: string) => {
-    const formattedCategory = category.toLowerCase();
-
     onChange({
-      target: { value: formattedCategory },
+      target: { value: category },
     } as React.ChangeEvent<HTMLInputElement>);
-
-    onCategoryClick(formattedCategory);
+    onCategoryClick(category);
+    setIsActive(false);
   };
 
   const handleClear = () => {
-    onChange({
-      target: { value: "" },
-    } as React.ChangeEvent<HTMLInputElement>);
+    onChange({ target: { value: "" } } as React.ChangeEvent<HTMLInputElement>);
   };
 
   return (
@@ -99,16 +89,16 @@ const SearchBar: React.FC<SearchBarProps> = ({
           <div className="mb-4">
             <h3 className="text-lg font-semibold mb-2">Collections</h3>
             <div className="grid grid-cols-2 gap-3">
-              {Object.keys(categoryImages)
+              {Object.entries(images)
                 .slice(0, 8)
-                .map((category) => (
+                .map(([category, imageUrl]) => (
                   <div
                     key={category}
                     className="flex items-center p-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-200 transition-all duration-150"
-                    onClick={() => handleCategoryClick(category)}
+                    onClick={() => handleCategoryClick(category.toLowerCase())}
                   >
                     <img
-                      src={categoryImages[category]}
+                      src={imageUrl}
                       alt={category}
                       className="w-10 h-10 rounded-md object-cover mr-2"
                       loading="lazy"

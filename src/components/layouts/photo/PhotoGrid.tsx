@@ -12,12 +12,31 @@ interface PhotoGridProps {
 const PhotoGrid: React.FC<PhotoGridProps> = ({ photos, onTagClick }) => {
   const [hoveredPhoto, setHoveredPhoto] = useState<Photo | null>(null);
   const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null);
-  const columnCount = 5;
-  const [columns, setColumns] = useState<Photo[][]>(
-    Array.from({ length: columnCount }, () => [])
-  );
+  const [columns, setColumns] = useState<Photo[][]>([]);
   const [photoHeights, setPhotoHeights] = useState<Record<string, number>>({});
-  const columnHeights = useRef<number[]>(Array(columnCount).fill(0));
+  const [columnCount, setColumnCount] = useState(5);
+  const columnHeights = useRef<number[]>([]);
+
+  const calculateColumnCount = () => {
+    const width = window.innerWidth;
+    if (width < 640) return 1;
+    if (width < 768) return 2;
+    if (width < 1024) return 3;
+    if (width < 1280) return 4;
+    return 5;
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      setColumnCount(calculateColumnCount());
+    };
+
+    handleResize();
+
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     const newColumns: Photo[][] = Array.from({ length: columnCount }, () => []);
@@ -32,7 +51,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos, onTagClick }) => {
     });
 
     setColumns(newColumns);
-  }, [photos, photoHeights]);
+  }, [photos, photoHeights, columnCount]);
 
   const handleImageLoad = (photoId: string, height: number) => {
     setPhotoHeights((prevHeights) => ({
@@ -52,7 +71,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos, onTagClick }) => {
   return (
     <div className="w-full px-4 pt-16">
       <motion.div
-        className="flex gap-4"
+        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
