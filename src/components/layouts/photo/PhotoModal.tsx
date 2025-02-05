@@ -8,8 +8,7 @@ import tippy, { followCursor } from "tippy.js";
 import "tippy.js/dist/tippy.css";
 import { fetchPhoto } from "../../../api/useUnsplash";
 import Spinner from "../../ui/Spinner";
-// @ts-expect-error: Importing ColorThief without type declarations
-import * as ColorThief from "colorthief";
+import ColorThief from "colorthief";
 
 import { Photo } from "../../../types/Photo";
 
