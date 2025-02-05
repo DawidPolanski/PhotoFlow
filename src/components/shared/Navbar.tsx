@@ -42,7 +42,7 @@ const Navbar: React.FC = () => {
             to="/contact"
             className="hover:text-blue-500 transition-all duration-300"
           >
-            Colection
+            Collections
           </Link>
         </div>
       </div>
