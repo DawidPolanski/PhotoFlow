@@ -136,7 +136,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!magnifierMode || !modalRef.current || isMobile) return; // Wyłącz lupy na mobilnych
+    if (!magnifierMode || !modalRef.current || isMobile) return;
     const container = modalRef.current.querySelector(".relative.group");
     if (!container) return;
     const rect = container.getBoundingClientRect();
@@ -297,16 +297,20 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
 
           <div className="flex flex-col flex-grow">
             <div>
-              <h3 className="text-2xl font-medium mb-2">Description</h3>
-              <p>{photo.alt_description || "No description available"}</p>
+              <h3 className="text-2xl font-medium mb-2 text-black">
+                Description
+              </h3>
+              <p className="text-black">
+                {photo.alt_description || "No description available"}
+              </p>
               {photo.tags && photo.tags.length > 0 && (
                 <div className="mt-4">
-                  <h4 className="text-xl font-medium mb-2">Tags</h4>
+                  <h4 className="text-xl font-medium mb-2 text-black">Tags</h4>
                   <div className="flex flex-wrap gap-2">
                     {photo.tags.map((tag, index) => (
                       <span
                         key={index}
-                        className="bg-gray-200 text-gray-800 text-sm px-3 py-1 rounded-full cursor-pointer hover:bg-gray-300"
+                        className="bg-gray-200 text-black text-sm px-3 py-1 rounded-full cursor-pointer hover:bg-gray-300"
                         onClick={() => handleTagClick(tag.title)}
                       >
                         {tag.title}
@@ -316,6 +320,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
                 </div>
               )}
             </div>
+
             <div className="mt-auto pt-4">
               {colors.length > 0 && (
                 <div className="w-full mb-4">
