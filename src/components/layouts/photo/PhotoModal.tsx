@@ -35,6 +35,23 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   const [activeColorIndex, setActiveColorIndex] = useState<number | null>(null);
   const [copiedColorIndex, setCopiedColorIndex] = useState<number | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      return window.innerWidth <= 768;
+    };
+    setIsMobile(checkIsMobile());
+    const meta = document.createElement("meta");
+    meta.name = "viewport";
+    meta.content =
+      "width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no";
+    document.head.appendChild(meta);
+
+    return () => {
+      document.head.removeChild(meta);
+    };
+  }, []);
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -119,7 +136,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!magnifierMode || !modalRef.current) return;
+    if (!magnifierMode || !modalRef.current || isMobile) return; // Wyłącz lupy na mobilnych
     const container = modalRef.current.querySelector(".relative.group");
     if (!container) return;
     const rect = container.getBoundingClientRect();
@@ -134,10 +151,12 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   };
 
   const handleColorHover = (index: number) => {
+    if (isMobile) return;
     setActiveColorIndex(index);
   };
 
   const handleColorLeave = () => {
+    if (isMobile) return;
     setActiveColorIndex(null);
   };
 
@@ -187,7 +206,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
         <CloseIcon className="w-8 h-8 text-white hover:opacity-80 transition-opacity" />
       </motion.button>
       <motion.div
-        className={`flex flex-col lg:flex-row w-[90%] lg:w-[80%] xl:w-[75%] max-w-[1600px] max-h-[90vh] relative rounded-lg overflow-y-auto shadow-lg bg-white`} // Dodano overflow-y-auto
+        className={`flex flex-col lg:flex-row w-[90%] lg:w-[80%] xl:w-[75%] max-w-[1600px] max-h-[90vh] relative rounded-lg overflow-y-auto shadow-lg bg-white`}
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.3 }}
@@ -196,7 +215,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
           className={`relative group flex items-center justify-center bg-black cursor-default ${
             isPortrait ? "h-auto" : "h-auto"
           }`}
-          onMouseMove={handleMouseMove}
+          onMouseMove={!isMobile ? handleMouseMove : undefined}
         >
           <img
             src={photo.urls.regular}
@@ -204,11 +223,11 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
             className={`h-full w-full object-contain ${
               magnifierMode ? "cursor-none" : ""
             }`}
-            onMouseMove={handleMouseMove}
-            onMouseLeave={handleMagnifierOff}
+            onMouseMove={!isMobile ? handleMouseMove : undefined}
+            onMouseLeave={!isMobile ? handleMagnifierOff : undefined}
             onClick={handleMagnifierOff}
           />
-          {magnifierMode && (
+          {magnifierMode && !isMobile && (
             <div
               className="absolute pointer-events-none border-2 border-white"
               style={{
@@ -228,30 +247,34 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
               }}
             />
           )}
-          <div
-            onClick={handleMagnifierToggle}
-            className="absolute top-4 left-4 cursor-pointer opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out"
-          >
-            <MagnifierIcon className="w-5 h-5 text-white" />
-          </div>
-          <div className="absolute bottom-4 right-4 z-50 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out">
-            <InfoIcon className="w-6 h-6 text-white info-icon select-none focus:outline-none" />
-          </div>
-          <div className="absolute top-4 right-4 z-50 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out">
-            <a
-              href={photo.urls.regular}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <NewTabIcon className="w-6 h-6 text-blue-500 hover:text-blue-700 transition-all" />
-            </a>
-          </div>
+          {!isMobile && (
+            <>
+              <div
+                onClick={handleMagnifierToggle}
+                className="absolute top-4 left-4 cursor-pointer opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out"
+              >
+                <MagnifierIcon className="w-5 h-5 text-white" />
+              </div>
+              <div className="absolute bottom-4 right-4 z-50 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out">
+                <InfoIcon className="w-6 h-6 text-white info-icon select-none focus:outline-none" />
+              </div>
+              <div className="absolute top-4 right-4 z-50 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out">
+                <a
+                  href={photo.urls.regular}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <NewTabIcon className="w-6 h-6 text-blue-500 hover:text-blue-700 transition-all" />
+                </a>
+              </div>
+            </>
+          )}
         </div>
 
         <div
           className={`space-y-6 bg-white px-8 py-6 ${
             isPortrait ? "lg:flex-[2]" : "lg:flex-[1.5]"
-          } relative flex flex-col`}
+          } relative flex flex-col min-h-[200px]`}
         >
           <div className="flex items-center space-x-4 border-b pb-4">
             <img
