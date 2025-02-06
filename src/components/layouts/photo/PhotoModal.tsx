@@ -39,7 +39,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
 
   useEffect(() => {
     const checkIsMobile = () => {
-      return window.innerWidth <= 768;
+      return window.innerWidth <= 1024;
     };
     setIsMobile(checkIsMobile());
     const meta = document.createElement("meta");
@@ -128,10 +128,12 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   }, []);
 
   const handleMagnifierToggle = () => {
+    if (isMobile) return;
     setMagnifierMode((prev) => !prev);
   };
 
   const handleMagnifierOff = () => {
+    if (isMobile) return;
     setMagnifierMode(false);
   };
 
@@ -200,7 +202,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       <motion.button
         onClick={onClose}
         className="fixed top-4 right-4 z-50 p-0 m-0 border-none bg-transparent"
-        whileHover={{ scale: 1.1 }}
+        whileHover={{ scale: isMobile ? 1 : 1.1 }}
         whileTap={{ scale: 0.9 }}
       >
         <CloseIcon className="w-8 h-8 text-white hover:opacity-80 transition-opacity" />
@@ -333,7 +335,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
                         onMouseEnter={() => handleColorHover(index)}
                         onMouseLeave={handleColorLeave}
                         onClick={() => handleColorClick(color, index)}
-                        whileHover={{ scale: 1.05 }}
+                        whileHover={isMobile ? {} : { scale: 1.05 }}
                         transition={{ duration: 0.2 }}
                       >
                         {(activeColorIndex === index ||
