@@ -199,14 +199,14 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       animate={{ opacity: 1 }}
       transition={{ duration: 0.3 }}
     >
-      <motion.button
+      <motion.div
         onClick={onClose}
-        className="fixed top-4 right-4 z-50 p-0 m-0 border-none bg-transparent"
+        className="fixed top-4 right-4 z-50 p-0 m-0 border-none bg-transparent cursor-pointer"
         whileHover={{ scale: isMobile ? 1 : 1.1 }}
         whileTap={{ scale: 0.9 }}
       >
         <CloseIcon className="w-8 h-8 text-white hover:opacity-80 transition-opacity" />
-      </motion.button>
+      </motion.div>
       <motion.div
         className={`flex flex-col lg:flex-row w-[90%] lg:w-[80%] xl:w-[75%] max-w-[1600px] max-h-[90vh] relative rounded-lg overflow-y-auto shadow-lg bg-white`}
         initial={{ scale: 0.8, opacity: 0 }}
