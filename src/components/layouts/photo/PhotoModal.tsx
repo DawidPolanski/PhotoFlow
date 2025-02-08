@@ -294,6 +294,17 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
               >
                 View Profile
               </a>
+              {photo.location && (
+                <div className="text-sm text-gray-600 mt-1">
+                  {[
+                    photo.location.name,
+                    photo.location.city,
+                    photo.location.country,
+                  ]
+                    .filter(Boolean)
+                    .join(", ")}
+                </div>
+              )}
             </div>
           </div>
 
