@@ -222,7 +222,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
           <img
             src={photo.urls.regular}
             alt={photo.alt_description || "Photo description"}
-            className={`h-full w-full object-contain ${
+            className={`h-full w-full object-cover ${
               magnifierMode ? "cursor-none" : ""
             }`}
             onMouseMove={!isMobile ? handleMouseMove : undefined}

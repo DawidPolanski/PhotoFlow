@@ -6,11 +6,16 @@ const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
 
   const handleScroll = () => {
-    setIsScrolled(window.scrollY > 0);
+    if (window.scrollY > 0) {
+      setIsScrolled(true);
+    } else {
+      setIsScrolled(false);
+    }
   };
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll);
+
     return () => {
       window.removeEventListener("scroll", handleScroll);
     };
@@ -20,21 +25,21 @@ const Navbar: React.FC = () => {
     <nav
       className={`${
         isScrolled
-          ? "bg-white bg-opacity-90 backdrop-blur-lg text-black shadow-lg pointer-events-auto"
+          ? "bg-white bg-opacity-90 backdrop-blur-lg text-black shadow-lg"
           : "bg-white text-black"
-      } p-4 fixed w-full top-0 left-0 z-50 transition-all duration-300 ease-in-out`}
+      } p-4 fixed w-full top-0 left-0 z-10 transition-all duration-300 ease-in-out`}
     >
       <div className="container mx-auto flex justify-between items-center">
         <Link
           to="/"
           className="text-2xl font-bold hover:text-blue-500 flex items-center"
         >
-          <img src={LogoIcon} alt="PhotoFlow Logo" className="h-8 mr-2" />
+          <img src={LogoIcon} alt="PhotoFlow Logo" className="h-8 mr-2" />{" "}
           PhotoFlow
         </Link>
         <div className="space-x-6">
           <Link
-            to="/collections"
+            to="/contact"
             className="hover:text-blue-500 transition-all duration-300"
           >
             Collections

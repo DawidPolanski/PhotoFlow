@@ -20,7 +20,7 @@ const Header: React.FC<HeaderProps> = ({ scrolling }) => {
 
   return (
     <div
-      className={`w-full sticky top-0 bg-transparent z-10 transition-all duration-100 flex justify-center ${
+      className={`w-fit mx-auto sticky top-0 bg-transparent z-10 transition-all duration-100 flex justify-center ${
         scrolling ? "top-0" : "top-[-30px]"
       }`}
     >
