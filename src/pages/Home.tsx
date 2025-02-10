@@ -9,7 +9,6 @@ import MainLayout from "../components/layouts/MainLayout";
 import PhotoGrid from "../components/layouts/photo/PhotoGrid";
 import Header from "../components/layouts/Header";
 import SearchBar from "../components/layouts/search/SearchBar";
-import LoadingSkeleton from "../components/layouts/search/LoadingSkeleton";
 
 interface Photo {
   id: string;
@@ -187,9 +186,6 @@ const Home: React.FC = () => {
 
         {showCollections ? (
           <div className="w-full max-w-4xl mb-8">
-            <h2 className="text-2xl font-bold mb-4 text-gray-800">
-              Collections
-            </h2>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
               {collections.map((collection) => (
                 <motion.div
@@ -219,7 +215,6 @@ const Home: React.FC = () => {
           </div>
         ) : (
           <>
-            {loading && <LoadingSkeleton />}
             <PhotoGrid photos={photos} onTagClick={handleTagClick} />
             {loading && (
               <div className="w-full flex justify-center py-4">

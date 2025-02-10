@@ -39,7 +39,7 @@ const Navbar: React.FC = () => {
         </Link>
         <div className="space-x-6">
           <Link
-            to="/contact"
+            to="/collections"
             className="hover:text-blue-500 transition-all duration-300"
           >
             Collections
