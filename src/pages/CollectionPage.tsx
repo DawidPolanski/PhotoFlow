@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { fetchCollections } from "../api/useUnsplash";
 import Collections from "../components/layouts/collections/Collections";
-import Spinner from "../components/ui/Spinner";
 import CollectionsLayout from "../components/layouts/CollectionsLayout";
+import LoadingCollectionSkeleton from "../components/layouts/search/LoadingCollectionSkeleton";
 import { debounce } from "lodash";
 
 const CollectionsPage: React.FC = () => {
@@ -51,15 +51,15 @@ const CollectionsPage: React.FC = () => {
     };
   }, []);
 
-  if (loading && page === 1) {
-    return <Spinner />;
-  }
-
   return (
     <CollectionsLayout>
       <div className="py-8">
-        <Collections collections={collections} />
-        {loading && <Spinner />}
+        {loading && page === 1 ? (
+          <LoadingCollectionSkeleton />
+        ) : (
+          <Collections collections={collections} />
+        )}
+        {loading && page > 1 && <LoadingCollectionSkeleton />}
       </div>
     </CollectionsLayout>
   );

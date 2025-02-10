@@ -1,18 +1,19 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { Collection } from "../../../types/Collection";
+import CollectionsSkeleton from "../search/LoadingCollectionSkeleton";
 
 interface CollectionsProps {
   collections: Collection[];
+  loading?: boolean;
 }
 
-const Collections: React.FC<CollectionsProps> = ({ collections }) => {
+const Collections: React.FC<CollectionsProps> = ({ collections, loading }) => {
   return (
     <div className="w-full max-w-6xl mx-auto mb-8">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Collections</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {collections.map((collection) => {
-          console.log("Collection data:", collection);
           const images =
             collection.preview_photos && collection.preview_photos.length >= 3
               ? collection.preview_photos.slice(0, 3)
@@ -87,6 +88,7 @@ const Collections: React.FC<CollectionsProps> = ({ collections }) => {
             </motion.div>
           );
         })}
+        {loading && <CollectionsSkeleton />}
       </div>
     </div>
   );
