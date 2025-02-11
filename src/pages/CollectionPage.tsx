@@ -9,12 +9,17 @@ const CollectionsPage: React.FC = () => {
   const [collections, setCollections] = useState([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
+  const [error, setError] = useState<string | null>(null);
 
   const loadCollections = useCallback(async () => {
     if (loading) return;
     setLoading(true);
+    setError(null);
     try {
       const fetchedCollections = await fetchCollections(page, 30);
+      if (fetchedCollections.length === 0) {
+        setError("No more collections to load.");
+      }
       setCollections((prevCollections) => {
         const newCollections = fetchedCollections.filter(
           (newCollection) =>
@@ -26,6 +31,7 @@ const CollectionsPage: React.FC = () => {
       });
     } catch (error) {
       console.error("Error fetching collections:", error);
+      setError("Failed to load collections. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -54,6 +60,7 @@ const CollectionsPage: React.FC = () => {
   return (
     <CollectionsLayout>
       <div className="py-8">
+        {error && <p className="text-red-500 text-center">{error}</p>}
         {loading && page === 1 ? (
           <LoadingCollectionSkeleton />
         ) : (

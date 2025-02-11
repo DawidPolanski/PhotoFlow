@@ -42,7 +42,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos, onTagClick }) => {
     const newColumns: Photo[][] = Array.from({ length: columnCount }, () => []);
     columnHeights.current = Array(columnCount).fill(0);
 
-    photos.forEach((photo) => {
+    photos?.forEach((photo) => {
       const shortestColumnIndex = columnHeights.current.indexOf(
         Math.min(...columnHeights.current)
       );
