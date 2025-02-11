@@ -125,7 +125,9 @@ export const fetchCollections = async (page = 1, perPage = 10) => {
 
   if (cachedCollections) {
     console.log("Kolekcje pobrane z cache");
-    return cachedCollections;
+    return cachedCollections.filter(
+      (collection) => collection.user?.username !== "unsplashplus"
+    );
   }
 
   if (remainingRequests <= 0 && Date.now() < resetTime) {
@@ -143,9 +145,11 @@ export const fetchCollections = async (page = 1, perPage = 10) => {
     remainingRequests = parseInt(response.headers["x-ratelimit-remaining"], 10);
     resetTime = parseInt(response.headers["x-ratelimit-reset"], 10) * 1000;
 
-    const collections = response.data;
+    const collections = response.data.filter(
+      (collection) => collection.user?.username !== "unsplashplus"
+    );
 
-    console.log("Kolekcje pobrane z API:", collections);
+    console.log("Kolekcje (bez Unsplash+):", collections);
     cacheData(cacheKey, collections);
 
     return collections;
