@@ -6,7 +6,6 @@ export const cacheMiddleware = (config: InternalAxiosRequestConfig) => {
   const cachedResponse = getCache(cacheKey);
 
   if (cachedResponse) {
-    console.log(`[CACHE] Pobieranie ${cacheKey} z cache`);
     return Promise.reject({ data: cachedResponse, fromCache: true });
   }
 
@@ -19,6 +18,5 @@ export const cacheResponseMiddleware = (response: AxiosResponse) => {
   )}`;
 
   cacheData(cacheKey, response.data);
-  console.log(`[CACHE] Dane dla ${cacheKey} zapisane w cache`);
   return response;
 };

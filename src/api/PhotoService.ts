@@ -13,7 +13,6 @@ export const fetchPhotos = async (
   const cachedPhotos = getCache(cacheKey);
 
   if (cachedPhotos) {
-    console.log("Dane pobrane z cache");
     return cachedPhotos;
   }
 
@@ -27,18 +26,13 @@ export const fetchPhotos = async (
       per_page: 30,
     };
 
-    console.log("API Request URL:", url);
-    console.log("API Request Params:", params);
-
     const response = await axiosInstance.get(url, { params });
 
     updateRateLimit(response);
-    console.log("Dane pobrane z API:", response.data);
 
     const photos = collectionId ? response.data : response.data.results;
 
     if (!photos || photos.length === 0) {
-      console.warn("No photos found for the given query or collection.");
       return [];
     }
 

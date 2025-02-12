@@ -1,6 +1,6 @@
 import React from "react";
 
-const CollectionsSkeleton: React.FC = () => {
+const LoadingCollectionSkeleton: React.FC = () => {
   return (
     <div className="w-full max-w-6xl mx-auto mb-8">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Collections</h2>
@@ -34,4 +34,4 @@ const CollectionsSkeleton: React.FC = () => {
   );
 };
 
-export default CollectionsSkeleton;
+export default LoadingCollectionSkeleton;

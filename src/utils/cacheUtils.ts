@@ -69,12 +69,8 @@ const clearSpaceForNewItem = async (newItemSize: number) => {
     if (oldestKey) {
       if (oldestItemSize <= MAX_ITEM_SIZE) {
         localStorage.removeItem(oldestKey);
-        console.log(`🗑 Usunięto najstarszy element: ${oldestKey}`);
       } else {
         sessionStorage.removeItem(oldestKey);
-        console.log(
-          `🗑 Usunięto najstarszy element z sessionStorage: ${oldestKey}`
-        );
       }
     } else {
       break;
@@ -82,10 +78,9 @@ const clearSpaceForNewItem = async (newItemSize: number) => {
   }
 };
 
-export const cacheData = async (key: string, data: any) => {
+export const cacheData = async (key: string, data: unknown) => {
   try {
     if (!data || (Array.isArray(data) && data.length === 0)) {
-      console.warn(`⚠ Pominięto zapis pustych danych dla klucza: ${key}`);
       return;
     }
 
@@ -99,17 +94,12 @@ export const cacheData = async (key: string, data: any) => {
 
     const availableStorage = await getAvailableStorage();
     if (availableStorage !== null && availableStorage < newItemSize) {
-      console.warn("⚠ Brak miejsca w localStorage. Zwolnienie miejsca...");
       await clearSpaceForNewItem(newItemSize);
     }
 
     localStorage.setItem(key, serializedData);
-    console.log(`[CACHE] Zapisywanie do cache: ${key}`);
   } catch (e) {
     if (e.name === "QuotaExceededError") {
-      console.warn(
-        "🚨 Przekroczono limit localStorage. Przenoszenie do sessionStorage..."
-      );
       try {
         sessionStorage.setItem(
           key,

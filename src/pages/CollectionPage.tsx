@@ -64,7 +64,7 @@ const CollectionsPage: React.FC = () => {
         {loading && page === 1 ? (
           <LoadingCollectionSkeleton />
         ) : (
-          <Collections collections={collections} />
+          <Collections collections={collections} loading={loading} />
         )}
         {loading && page > 1 && <LoadingCollectionSkeleton />}
       </div>

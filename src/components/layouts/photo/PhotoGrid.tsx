@@ -3,13 +3,19 @@ import { motion } from "framer-motion";
 import { Photo } from "../../../types/Photo";
 import PhotoColumn from "../photo/PhotoColumn";
 import PhotoModal from "./PhotoModal";
+import LoadingSkeleton from "../search/LoadingSkeleton";
 
 interface PhotoGridProps {
   photos: Photo[];
   onTagClick: (tag: string) => void;
+  loading?: boolean;
 }
 
-const PhotoGrid: React.FC<PhotoGridProps> = ({ photos, onTagClick }) => {
+const PhotoGrid: React.FC<PhotoGridProps> = ({
+  photos,
+  onTagClick,
+  loading,
+}) => {
   const [hoveredPhoto, setHoveredPhoto] = useState<Photo | null>(null);
   const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null);
   const [columns, setColumns] = useState<Photo[][]>([]);
@@ -70,24 +76,32 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({ photos, onTagClick }) => {
 
   return (
     <div className="w-full px-4 pt-16">
-      <motion.div
-        className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        aria-label="Photo grid"
-      >
-        {columns.map((column, colIndex) => (
-          <PhotoColumn
-            key={colIndex}
-            photos={column}
-            hoveredPhoto={hoveredPhoto}
-            onHover={setHoveredPhoto}
-            onClick={openModal}
-            onLoad={handleImageLoad}
-          />
-        ))}
-      </motion.div>
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {Array.from({ length: columnCount * 2 }).map((_, index) => (
+            <LoadingSkeleton key={index} />
+          ))}
+        </div>
+      ) : (
+        <motion.div
+          className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+          aria-label="Photo grid"
+        >
+          {columns.map((column, colIndex) => (
+            <PhotoColumn
+              key={colIndex}
+              photos={column}
+              hoveredPhoto={hoveredPhoto}
+              onHover={setHoveredPhoto}
+              onClick={openModal}
+              onLoad={handleImageLoad}
+            />
+          ))}
+        </motion.div>
+      )}
 
       {selectedPhotoId && (
         <PhotoModal
