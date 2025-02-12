@@ -11,6 +11,7 @@ import Header from "../components/layouts/Header";
 import SearchBar from "../components/layouts/search/SearchBar";
 import { Photo } from "../types/Photo";
 import { Collection } from "../types/Collection";
+import LoadingSkeleton from "../components/layouts/search/LoadingSkeleton";
 
 const Home: React.FC = () => {
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -215,9 +216,7 @@ const Home: React.FC = () => {
             <PhotoGrid photos={photos} onTagClick={handleTagClick} />
             {loading && (
               <div className="w-full flex justify-center py-4">
-                <div className="animate-pulse">
-                  <div className="bg-gray-300 h-8 w-16 rounded-md" />
-                </div>
+                <LoadingSkeleton />
               </div>
             )}
           </>
