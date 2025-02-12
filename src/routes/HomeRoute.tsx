@@ -4,6 +4,7 @@ import Home from "../pages/Home";
 import CollectionPage from "../pages/CollectionPage";
 import MainLayout from "../components/layouts/MainLayout";
 import CollectionPhotos from "../components/layouts/photo/CollectionPhotos";
+import NotFoundPage from "../pages/NotFoundPage";
 
 const HomeRoutes: React.FC = () => {
   return (
@@ -32,6 +33,7 @@ const HomeRoutes: React.FC = () => {
           </MainLayout>
         }
       />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 };
