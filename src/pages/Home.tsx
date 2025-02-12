@@ -9,20 +9,8 @@ import MainLayout from "../components/layouts/MainLayout";
 import PhotoGrid from "../components/layouts/photo/PhotoGrid";
 import Header from "../components/layouts/Header";
 import SearchBar from "../components/layouts/search/SearchBar";
-
-interface Photo {
-  id: string;
-  urls: { small: string };
-  alt_description: string;
-  likes: number;
-  user: { name: string; profile_image: { small: string } };
-}
-
-interface Collection {
-  id: string;
-  title: string;
-  cover_photo: { urls: { small: string } };
-}
+import { Photo } from "../types/Photo";
+import { Collection } from "../types/Collection";
 
 const Home: React.FC = () => {
   const [photos, setPhotos] = useState<Photo[]>([]);
@@ -38,18 +26,27 @@ const Home: React.FC = () => {
   const loadingRef = useRef(false);
   const scrollPosition = useRef(0);
 
+  useEffect(() => {
+    const savedSearches = localStorage.getItem("recentSearches");
+    if (savedSearches) {
+      setRecentSearches(JSON.parse(savedSearches));
+    }
+  }, []);
+
   const updateRecentSearches = (searchTerm: string) => {
     setRecentSearches((prevSearches) => {
       const updatedSearches = [
         searchTerm,
         ...prevSearches.filter((term) => term !== searchTerm),
-      ];
-      return updatedSearches.slice(0, 5);
+      ].slice(0, 6);
+      localStorage.setItem("recentSearches", JSON.stringify(updatedSearches));
+      return updatedSearches;
     });
   };
 
   const clearRecentSearches = () => {
     setRecentSearches([]);
+    localStorage.removeItem("recentSearches");
   };
 
   const loadPhotos = async () => {

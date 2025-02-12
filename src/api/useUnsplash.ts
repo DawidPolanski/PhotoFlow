@@ -125,9 +125,11 @@ export const fetchCollections = async (page = 1, perPage = 10) => {
   const cachedCollections = getCache(cacheKey);
 
   if (cachedCollections) {
+    console.log("Pobrano kolekcje z cache.");
     return cachedCollections.filter(
       (collection) =>
         collection.user?.username !== "plus" &&
+        !collection.cover_photo?.urls?.raw.includes("plus.unsplash.com") &&
         !collection.tags?.some((tag) =>
           tag.title.toLowerCase().includes("premium")
         )
@@ -135,6 +137,7 @@ export const fetchCollections = async (page = 1, perPage = 10) => {
   }
 
   if (remainingRequests <= 0 && Date.now() < resetTime) {
+    console.log("Limit API wyczerpany. Poczekaj na reset.");
     return [];
   }
 
@@ -148,18 +151,20 @@ export const fetchCollections = async (page = 1, perPage = 10) => {
     remainingRequests = parseInt(response.headers["x-ratelimit-remaining"], 10);
     resetTime = parseInt(response.headers["x-ratelimit-reset"], 10) * 1000;
 
-    const collections = response.data.filter(
+    const filteredCollections = response.data.filter(
       (collection) =>
         collection.user?.username !== "plus" &&
+        !collection.cover_photo?.urls?.raw.includes("plus.unsplash.com") &&
         !collection.tags?.some((tag) =>
           tag.title.toLowerCase().includes("premium")
         )
     );
 
-    console.log("Kolekcje (bez Unsplash+):", collections);
-    cacheData(cacheKey, collections);
+    console.log("Kolekcje (bez Unsplash+ i premium):", filteredCollections);
 
-    return collections;
+    cacheData(cacheKey, filteredCollections);
+
+    return filteredCollections;
   } catch (error) {
     console.error("Błąd podczas pobierania kolekcji:", error);
     return [];

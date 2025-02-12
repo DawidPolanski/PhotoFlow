@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { motion } from "framer-motion";
 import { Photo } from "../../../types/Photo";
 import PhotoCard from "./PhotoCard";
-
+import LoadingSkeleton from "../search/LoadingSkeleton";
 interface PhotoColumnProps {
   photos: Photo[];
   hoveredPhoto: Photo | null;
@@ -19,13 +19,7 @@ const PhotoColumn: React.FC<PhotoColumnProps> = memo(
       aria-label="Photo column"
     >
       {photos.length === 0 ? (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-        >
-          <p className="text-gray-500 text-center">No photos to display.</p>
-        </motion.div>
+        <LoadingSkeleton />
       ) : (
         photos.map((photo, index) => (
           <motion.div

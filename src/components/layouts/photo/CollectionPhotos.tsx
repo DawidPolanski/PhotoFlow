@@ -8,8 +8,6 @@ import { debounce } from "lodash";
 
 const CollectionPhotos: React.FC = () => {
   const { collectionId } = useParams<{ collectionId: string }>();
-  console.log("Collection ID:", collectionId); // Debugowanie
-
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -21,7 +19,7 @@ const CollectionPhotos: React.FC = () => {
     setError(null);
     try {
       const fetchedPhotos = await fetchPhotos("", page, collectionId);
-      console.log("Fetched photos:", fetchedPhotos); // Debugowanie
+      console.log("Fetched photos:", fetchedPhotos);
 
       if (fetchedPhotos.length === 0) {
         setError("No more photos to load.");
