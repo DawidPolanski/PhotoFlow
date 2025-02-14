@@ -1,8 +1,6 @@
-import { cacheData, getCache } from "../utils/cacheUtils";
-import axios from "axios";
-
-let remainingRequests = 50;
-let resetTime = Date.now() + 3600 * 1000;
+import axiosInstance from "./axiosInstance";
+import { getCache, cacheData } from "../utils/cacheUtils";
+import { checkRateLimit } from "../utils/rateLimitUtils";
 
 export const fetchPhotos = async (
   query: string,
@@ -24,26 +22,22 @@ export const fetchPhotos = async (
     return cachedPhotos;
   }
 
-  if (remainingRequests <= 0 && Date.now() < resetTime) {
+  if (!checkRateLimit()) {
     console.log("Limit requestów wyczerpany. Poczekaj do resetu.");
     return [];
   }
 
   const url = collectionId
-    ? `https://api.unsplash.com/collections/${collectionId}/photos?page=${page}&per_page=30&client_id=${
-        import.meta.env.VITE_UNSPLASH_ACCESS_KEY
-      }`
-    : `https://api.unsplash.com/search/photos?query=${encodeURIComponent(
-        query
-      )}&page=${page}&per_page=30&client_id=${
-        import.meta.env.VITE_UNSPLASH_ACCESS_KEY
-      }`;
+    ? `/collections/${collectionId}/photos`
+    : "/search/photos";
+  const params = {
+    query: collectionId ? undefined : query || "default",
+    page,
+    per_page: 30,
+  };
 
   try {
-    const response = await axios.get(url);
-
-    remainingRequests = parseInt(response.headers["x-ratelimit-remaining"], 10);
-    resetTime = parseInt(response.headers["x-ratelimit-reset"], 10) * 1000;
+    const response = await axiosInstance.get(url, { params });
 
     const photos = response.data.results || response.data;
 
@@ -56,6 +50,10 @@ export const fetchPhotos = async (
     return [];
   }
 };
+
+/**
+ * Pobiera pojedyncze zdjęcie na podstawie jego ID.
+ */
 export const fetchPhoto = async (id: string) => {
   const cacheKey = `photo_${id}`;
   const cachedPhoto = getCache(cacheKey);
@@ -64,30 +62,31 @@ export const fetchPhoto = async (id: string) => {
     return cachedPhoto;
   }
 
-  if (remainingRequests <= 0 && Date.now() < resetTime) {
+  if (!checkRateLimit()) {
+    console.log("Limit requestów wyczerpany. Poczekaj do resetu.");
     return null;
   }
 
-  const url = `https://api.unsplash.com/photos/${id}?client_id=${
-    import.meta.env.VITE_UNSPLASH_ACCESS_KEY
-  }`;
+  const url = `/photos/${id}`;
 
   try {
-    const response = await axios.get(url);
-
-    remainingRequests = parseInt(response.headers["x-ratelimit-remaining"], 10);
-    resetTime = parseInt(response.headers["x-ratelimit-reset"], 10) * 1000;
+    const response = await axiosInstance.get(url);
 
     const photo = response.data;
 
+    console.log(`Pobrano zdjęcie o ID: ${id}`);
     cacheData(cacheKey, photo);
 
     return photo;
-  } catch {
+  } catch (error) {
+    console.error("Błąd podczas pobierania zdjęcia:", error);
     return null;
   }
 };
 
+/**
+ * Pobiera popularne zdjęcia.
+ */
 export const fetchTrendingPhotos = async (page = 1) => {
   const cacheKey = `trending_photos_page_${page}`;
   const cachedPhotos = getCache(cacheKey);
@@ -96,30 +95,31 @@ export const fetchTrendingPhotos = async (page = 1) => {
     return cachedPhotos;
   }
 
-  if (remainingRequests <= 0 && Date.now() < resetTime) {
+  if (!checkRateLimit()) {
+    console.log("Limit requestów wyczerpany. Poczekaj do resetu.");
     return [];
   }
 
-  const url = `https://api.unsplash.com/photos?page=${page}&per_page=30&order_by=popular&client_id=${
-    import.meta.env.VITE_UNSPLASH_ACCESS_KEY
-  }`;
+  const url = `/photos?page=${page}&per_page=30&order_by=popular`;
 
   try {
-    const response = await axios.get(url);
-
-    remainingRequests = parseInt(response.headers["x-ratelimit-remaining"], 10);
-    resetTime = parseInt(response.headers["x-ratelimit-reset"], 10) * 1000;
+    const response = await axiosInstance.get(url);
 
     const photos = response.data;
 
+    console.log("Dane pobrane z API:", photos);
     cacheData(cacheKey, photos);
 
     return photos;
-  } catch {
+  } catch (error) {
+    console.error("Błąd podczas pobierania popularnych zdjęć:", error);
     return [];
   }
 };
 
+/**
+ * Pobiera kolekcje zdjęć.
+ */
 export const fetchCollections = async (page = 1, perPage = 10) => {
   const cacheKey = `collections_page_${page}_perPage_${perPage}`;
   const cachedCollections = getCache(cacheKey);
@@ -136,20 +136,15 @@ export const fetchCollections = async (page = 1, perPage = 10) => {
     );
   }
 
-  if (remainingRequests <= 0 && Date.now() < resetTime) {
+  if (!checkRateLimit()) {
     console.log("Limit API wyczerpany. Poczekaj na reset.");
     return [];
   }
 
-  const url = `https://api.unsplash.com/collections?page=${page}&per_page=${perPage}&client_id=${
-    import.meta.env.VITE_UNSPLASH_ACCESS_KEY
-  }`;
+  const url = `/collections?page=${page}&per_page=${perPage}`;
 
   try {
-    const response = await axios.get(url);
-
-    remainingRequests = parseInt(response.headers["x-ratelimit-remaining"], 10);
-    resetTime = parseInt(response.headers["x-ratelimit-reset"], 10) * 1000;
+    const response = await axiosInstance.get(url);
 
     const filteredCollections = response.data.filter(
       (collection) =>

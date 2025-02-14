@@ -57,6 +57,9 @@ const CollectionsPage: React.FC = () => {
     };
   }, []);
 
+  const skeletonsNeeded =
+    collections.length % 3 === 0 ? 0 : 3 - (collections.length % 3);
+
   return (
     <CollectionsLayout>
       <div className="py-8">
@@ -64,9 +67,17 @@ const CollectionsPage: React.FC = () => {
         {loading && page === 1 ? (
           <LoadingCollectionSkeleton />
         ) : (
-          <Collections collections={collections} loading={loading} />
+          <>
+            <Collections collections={collections} loading={loading} />
+            {loading && page > 1 && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[...Array(skeletonsNeeded)].map((_, index) => (
+                  <LoadingCollectionSkeleton key={`skeleton-${index}`} />
+                ))}
+              </div>
+            )}
+          </>
         )}
-        {loading && page > 1 && <LoadingCollectionSkeleton />}
       </div>
     </CollectionsLayout>
   );

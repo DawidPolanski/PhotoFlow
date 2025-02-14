@@ -10,7 +10,7 @@ module.exports = {
         "light-reflection":
           "light-reflection 5s cubic-bezier(0.4, 0, 0.6, 1) infinite",
         "gradient-wave": "gradient-wave 3s ease infinite",
-        "wave-text": "wave-text 3s ease-in-out infinite", // New wave effect for text
+        "wave-text": "wave-text 3s ease-in-out infinite",
       },
       backgroundSize: {
         "200%": "200%",

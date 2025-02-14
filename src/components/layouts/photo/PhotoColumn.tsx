@@ -23,7 +23,7 @@ const PhotoColumn: React.FC<PhotoColumnProps> = memo(
       ) : (
         photos.map((photo, index) => (
           <motion.div
-            key={`${photo.id}_${photo.created_at}`}
+            key={`${photo.id}_${index}`}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: index * 0.1 }}

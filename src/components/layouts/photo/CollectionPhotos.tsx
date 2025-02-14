@@ -13,8 +13,11 @@ const CollectionPhotos: React.FC = () => {
   const [page, setPage] = useState(1);
   const [error, setError] = useState<string | null>(null);
   const scrollPosition = useRef(0);
+  const isRequestInProgress = useRef(false);
 
   const loadCollectionPhotos = useCallback(async () => {
+    if (isRequestInProgress.current) return;
+    isRequestInProgress.current = true;
     setLoading(true);
     setError(null);
     try {
@@ -38,6 +41,7 @@ const CollectionPhotos: React.FC = () => {
       setError("Failed to load photos. Please try again later.");
     } finally {
       setLoading(false);
+      isRequestInProgress.current = false;
     }
   }, [collectionId, page]);
 

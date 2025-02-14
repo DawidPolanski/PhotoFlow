@@ -10,6 +10,7 @@ import { fetchPhoto } from "../../../api/useUnsplash";
 import Spinner from "../../ui/Spinner";
 import ColorThief from "colorthief";
 import { Photo } from "../../../types/Photo";
+import { throttle } from "lodash";
 
 interface PhotoModalProps {
   photoId: string;
@@ -63,9 +64,15 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   useEffect(() => {
     const loadPhoto = async () => {
       setLoading(true);
-      const fetchedPhoto = await fetchPhoto(photoId);
-      setPhoto(fetchedPhoto);
-      setLoading(false);
+      try {
+        const fetchedPhoto = await fetchPhoto(photoId);
+        setPhoto(fetchedPhoto);
+      } catch (error) {
+        console.error("Failed to load photo:", error);
+        alert("Nie udało się załadować zdjęcia. Spróbuj ponownie.");
+      } finally {
+        setLoading(false);
+      }
     };
     loadPhoto();
   }, [photoId]);
@@ -77,12 +84,16 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       img.crossOrigin = "Anonymous";
       img.onload = () => {
         const colorThief = new ColorThief();
-        const palette = colorThief.getPalette(img, 6);
-        const hexColors = palette.map(
-          (color) =>
-            `#${color.map((c) => c.toString(16).padStart(2, "0")).join("")}`
-        );
-        setColors(hexColors);
+        try {
+          const palette = colorThief.getPalette(img, 6);
+          const hexColors = palette.map(
+            (color) =>
+              `#${color.map((c) => c.toString(16).padStart(2, "0")).join("")}`
+          );
+          setColors(hexColors);
+        } catch (error) {
+          console.error("Failed to extract colors:", error);
+        }
       };
     }
   }, [photo]);
@@ -90,28 +101,32 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   useEffect(() => {
     if (photo?.exif && Object.keys(photo.exif).length > 0) {
       const tooltipElement = document.querySelector(".info-icon");
-      tippy(tooltipElement, {
-        content: `
-          <div class="text-left">
-            <p><strong>Make:</strong> ${photo.exif.make || "N/A"}</p>
-            <p><strong>Model:</strong> ${photo.exif.model || "N/A"}</p>
-            <p><strong>Aperture:</strong> f/${photo.exif.aperture || "N/A"}</p>
-            <p><strong>Exposure:</strong> ${
-              photo.exif.exposure_time || "N/A"
-            }</p>
-            <p><strong>Focal Length:</strong> ${
-              photo.exif.focal_length || "N/A"
-            }mm</p>
-            <p><strong>ISO:</strong> ${photo.exif.iso || "N/A"}</p>
-          </div>
-        `,
-        allowHTML: true,
-        placement: "top",
-        theme: "translucent",
-        followCursor: true,
-        plugins: [followCursor],
-        animation: "scale-subtle",
-      });
+      if (tooltipElement && !tooltipElement._tippy) {
+        tippy(tooltipElement, {
+          content: `
+            <div class="text-left">
+              <p><strong>Make:</strong> ${photo.exif.make || "N/A"}</p>
+              <p><strong>Model:</strong> ${photo.exif.model || "N/A"}</p>
+              <p><strong>Aperture:</strong> f/${
+                photo.exif.aperture || "N/A"
+              }</p>
+              <p><strong>Exposure:</strong> ${
+                photo.exif.exposure_time || "N/A"
+              }</p>
+              <p><strong>Focal Length:</strong> ${
+                photo.exif.focal_length || "N/A"
+              }mm</p>
+              <p><strong>ISO:</strong> ${photo.exif.iso || "N/A"}</p>
+            </div>
+          `,
+          allowHTML: true,
+          placement: "top",
+          theme: "translucent",
+          followCursor: true,
+          plugins: [followCursor],
+          animation: "scale-subtle",
+        });
+      }
     }
   }, [photo]);
 
@@ -137,7 +152,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     setMagnifierMode(false);
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = throttle((e: React.MouseEvent<HTMLDivElement>) => {
     if (!magnifierMode || !modalRef.current || isMobile) return;
     const container = modalRef.current.querySelector(".relative.group");
     if (!container) return;
@@ -150,7 +165,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       width: rect.width,
       height: rect.height,
     });
-  };
+  }, 50);
 
   const handleColorHover = (index: number) => {
     if (isMobile) return;
@@ -180,14 +195,6 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     return <Spinner />;
   }
 
-  if (!photo) {
-    return (
-      <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
-        <p className="text-white text-xl">Failed to load photo details.</p>
-      </div>
-    );
-  }
-
   const isPortrait = photo.height > photo.width;
 
   return (
@@ -205,7 +212,10 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
         whileHover={{ scale: isMobile ? 1 : 1.1 }}
         whileTap={{ scale: 0.9 }}
       >
-        <CloseIcon className="w-8 h-8 text-white hover:opacity-80 transition-opacity" />
+        <CloseIcon
+          className="w-8 h-8 text-white hover:opacity-80 transition-opacity"
+          aria-label="Close modal"
+        />
       </motion.div>
       <motion.div
         className={`flex flex-col lg:flex-row w-[90%] lg:w-[80%] xl:w-[75%] max-w-[1600px] max-h-[90vh] relative rounded-lg overflow-y-auto shadow-lg bg-white`}
@@ -228,6 +238,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
             onMouseMove={!isMobile ? handleMouseMove : undefined}
             onMouseLeave={!isMobile ? handleMagnifierOff : undefined}
             onClick={handleMagnifierOff}
+            loading="lazy"
           />
           {magnifierMode && !isMobile && (
             <div
@@ -255,10 +266,16 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
                 onClick={handleMagnifierToggle}
                 className="absolute top-4 left-4 cursor-pointer opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out"
               >
-                <MagnifierIcon className="w-5 h-5 text-white" />
+                <MagnifierIcon
+                  className="w-5 h-5 text-white"
+                  aria-label="Toggle magnifier mode"
+                />
               </div>
               <div className="absolute bottom-4 right-4 z-50 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out">
-                <InfoIcon className="w-6 h-6 text-white info-icon select-none focus:outline-none" />
+                <InfoIcon
+                  className="w-6 h-6 text-white info-icon select-none focus:outline-none"
+                  aria-label="Show EXIF information"
+                />
               </div>
               <div className="absolute top-4 right-4 z-50 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out">
                 <a
@@ -266,7 +283,10 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
                   target="_blank"
                   rel="noopener noreferrer"
                 >
-                  <NewTabIcon className="w-6 h-6 text-blue-500 hover:text-blue-700 transition-all" />
+                  <NewTabIcon
+                    className="w-6 h-6 text-blue-500 hover:text-blue-700 transition-all"
+                    aria-label="Open photo in new tab"
+                  />
                 </a>
               </div>
             </>
