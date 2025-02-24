@@ -23,6 +23,7 @@ const Header: React.FC<HeaderProps> = ({ scrolling }) => {
       className={`w-fit mx-auto sticky top-0 bg-transparent z-10 transition-all duration-100 flex justify-center ${
         scrolling ? "top-0" : "top-[-30px]"
       }`}
+      style={{ zIndex: 50 }}
     >
       <h1
         className={`text-center font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-blue-400 bg-200% animate-gradient-wave transition-all duration-100 p-4 w-fit ${

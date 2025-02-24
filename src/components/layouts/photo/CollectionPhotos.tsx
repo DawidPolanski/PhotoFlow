@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { fetchPhotos } from "../../../api/PhotoService";
 import PhotoGrid from "./PhotoGrid";
 import LoadingSkeleton from "../search/LoadingSkeleton";
@@ -8,6 +8,7 @@ import { debounce } from "lodash";
 
 const CollectionPhotos: React.FC = () => {
   const { collectionId } = useParams<{ collectionId: string }>();
+  const navigate = useNavigate();
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
@@ -85,7 +86,7 @@ const CollectionPhotos: React.FC = () => {
   }
 
   const handleTagClick = (tag: string) => {
-    console.log("Tag clicked:", tag);
+    navigate(`/?query=${tag}`);
   };
 
   return (
