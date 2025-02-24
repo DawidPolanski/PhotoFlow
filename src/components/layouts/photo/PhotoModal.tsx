@@ -3,14 +3,12 @@ import { motion } from "framer-motion";
 import CloseIcon from "../../shared/assets/icons/CloseIcon";
 import NewTabIcon from "../../shared/assets/icons/NewTabIcon";
 import InfoIcon from "../../shared/assets/icons/InfoIcon";
-import MagnifierIcon from "../../shared/assets/icons/MagnifierIcon";
 import tippy, { followCursor } from "tippy.js";
 import "tippy.js/dist/tippy.css";
 import { fetchPhoto } from "../../../api/useUnsplash";
 import Spinner from "../../ui/Spinner";
 import ColorThief from "colorthief";
 import { Photo } from "../../../types/Photo";
-import { throttle } from "lodash";
 import ReactDOM from "react-dom";
 
 interface PhotoModalProps {
@@ -26,13 +24,6 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
 }) => {
   const [photo, setPhoto] = useState<Photo | null>(null);
   const [loading, setLoading] = useState(true);
-  const [magnifierMode, setMagnifierMode] = useState(false);
-  const [magnifierPosition, setMagnifierPosition] = useState({
-    x: 0,
-    y: 0,
-    width: 0,
-    height: 0,
-  });
   const [colors, setColors] = useState<string[]>([]);
   const [activeColorIndex, setActiveColorIndex] = useState<number | null>(null);
   const [copiedColorIndex, setCopiedColorIndex] = useState<number | null>(null);
@@ -134,7 +125,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-        setMagnifierMode(false);
+        // ...existing code...
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -142,34 +133,6 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-
-  const handleMagnifierToggle = () => {
-    if (isMobile) return;
-    setMagnifierMode((prev) => !prev);
-  };
-
-  const handleMagnifierOff = () => {
-    if (isMobile) return;
-    setMagnifierMode(false);
-  };
-
-  const handleMouseMove = useCallback(
-    throttle((e: React.MouseEvent<HTMLDivElement>) => {
-      if (!magnifierMode || !modalRef.current || isMobile) return;
-      const container = modalRef.current.querySelector(".relative.group");
-      if (!container) return;
-      const rect = container.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      setMagnifierPosition({
-        x,
-        y,
-        width: rect.width,
-        height: rect.height,
-      });
-    }, 16),
-    [magnifierMode, isMobile]
-  );
 
   const handleColorHover = (index: number) => {
     if (isMobile) return;
@@ -255,50 +218,15 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
           className={`relative group flex items-center justify-center bg-black cursor-default ${
             isPortrait ? "h-auto" : "h-auto"
           }`}
-          onMouseMove={!isMobile ? handleMouseMove : undefined}
         >
           <img
             src={photo.urls.regular}
             alt={photo.alt_description || "Photo description"}
-            className={`h-full w-full object-cover ${
-              magnifierMode ? "cursor-none" : ""
-            }`}
-            onMouseMove={!isMobile ? handleMouseMove : undefined}
-            onMouseLeave={!isMobile ? handleMagnifierOff : undefined}
-            onClick={handleMagnifierOff}
+            className={`h-full w-full object-cover`}
             loading="lazy"
           />
-          {magnifierMode && !isMobile && (
-            <div
-              className="absolute pointer-events-none border-2 border-white"
-              style={{
-                width: "225px",
-                height: "225px",
-                border: "none",
-                transform: "translate(-50%, -50%)",
-                top: magnifierPosition.y,
-                left: magnifierPosition.x,
-                backgroundImage: `url(${photo.urls.regular})`,
-                backgroundSize: `${magnifierPosition.width * 2}px ${
-                  magnifierPosition.height * 2
-                }px`,
-                backgroundPosition: `${
-                  (magnifierPosition.x / magnifierPosition.width) * 100
-                }% ${(magnifierPosition.y / magnifierPosition.height) * 100}%`,
-              }}
-            />
-          )}
           {!isMobile && (
             <>
-              <div
-                onClick={handleMagnifierToggle}
-                className="absolute top-4 left-4 cursor-pointer opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out"
-              >
-                <MagnifierIcon
-                  className="w-5 h-5 text-white"
-                  aria-label="Toggle magnifier mode"
-                />
-              </div>
               <div className="absolute bottom-4 right-4 z-50 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out">
                 <InfoIcon
                   className="w-6 h-6 text-white info-icon select-none focus:outline-none"
