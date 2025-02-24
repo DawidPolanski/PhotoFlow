@@ -24,7 +24,7 @@ export interface Photo {
     download: string;
     download_location: string;
   };
-  categories: any[];
+  categories: unknown[];
   likes: number;
   views: number;
   user: {

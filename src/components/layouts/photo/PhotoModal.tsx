@@ -10,7 +10,6 @@ import Spinner from "../../ui/Spinner";
 import ColorThief from "colorthief";
 import ReactDOM from "react-dom";
 import type { Photo } from "../../../types/Photo";
-
 interface PhotoModalProps {
   photoId: string;
   onClose: () => void;
@@ -29,6 +28,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   const [copiedColorIndex, setCopiedColorIndex] = useState<number | null>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   useEffect(() => {
     const checkIsMobile = () => {
@@ -75,6 +75,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       img.src = photo.urls.regular;
       img.crossOrigin = "Anonymous";
       img.onload = () => {
+        setIsImageLoaded(true);
         const colorThief = new ColorThief();
         try {
           const palette = colorThief.getPalette(img, 6);
@@ -92,8 +93,13 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
 
   useEffect(() => {
     if (photo?.exif && Object.keys(photo.exif).length > 0) {
-      const tooltipElement = document.querySelector(".info-icon") as any;
-      if (tooltipElement && !tooltipElement._tippy) {
+      const tooltipElement = document.querySelector(
+        ".info-icon"
+      ) as HTMLElement;
+      if (
+        tooltipElement &&
+        !(tooltipElement as HTMLElement & { _tippy?: any })._tippy
+      ) {
         tippy(tooltipElement, {
           content: `
             <div class="text-left">
@@ -128,11 +134,14 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
         onClose();
       }
     };
-    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside as EventListener);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener(
+        "mousedown",
+        handleClickOutside as EventListener
+      );
     };
-  }, []);
+  }, [onClose]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -168,7 +177,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     onClose();
   };
 
-  if (loading) {
+  if (loading || !isImageLoaded) {
     return (
       <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
         <Spinner />
