@@ -1,6 +1,7 @@
 import axiosInstance from "./axiosInstance";
 import { getCache, cacheData } from "../utils/cacheUtils";
-import { checkRateLimit } from "../utils/rateLimitUtils";
+import { checkRateLimit, updateRateLimit } from "../utils/rateLimitUtils";
+import useRateLimitStore from "../store/useStore";
 
 export const fetchPhotos = async (
   query: string,
@@ -8,7 +9,6 @@ export const fetchPhotos = async (
   collectionId?: string
 ) => {
   if (!query.trim() && !collectionId) {
-    console.log("Brak zapytania lub ID kolekcji – nie pobieramy zdjęć.");
     return [];
   }
 
@@ -18,12 +18,10 @@ export const fetchPhotos = async (
   const cachedPhotos = getCache(cacheKey);
 
   if (cachedPhotos) {
-    console.log("Dane pobrane z cache");
     return cachedPhotos;
   }
 
   if (!checkRateLimit()) {
-    console.log("Limit requestów wyczerpany. Poczekaj do resetu.");
     return [];
   }
 
@@ -38,22 +36,15 @@ export const fetchPhotos = async (
 
   try {
     const response = await axiosInstance.get(url, { params });
-
+    updateRateLimit(response);
     const photos = response.data.results || response.data;
-
-    console.log("Dane pobrane z API:", photos);
     cacheData(cacheKey, photos);
-
     return photos;
   } catch (error) {
-    console.error("Błąd podczas pobierania zdjęć:", error);
     return [];
   }
 };
 
-/**
- * Pobiera pojedyncze zdjęcie na podstawie jego ID.
- */
 export const fetchPhoto = async (id: string) => {
   const cacheKey = `photo_${id}`;
   const cachedPhoto = getCache(cacheKey);
@@ -63,7 +54,6 @@ export const fetchPhoto = async (id: string) => {
   }
 
   if (!checkRateLimit()) {
-    console.log("Limit requestów wyczerpany. Poczekaj do resetu.");
     return null;
   }
 
@@ -71,22 +61,15 @@ export const fetchPhoto = async (id: string) => {
 
   try {
     const response = await axiosInstance.get(url);
-
+    updateRateLimit(response);
     const photo = response.data;
-
-    console.log(`Pobrano zdjęcie o ID: ${id}`);
     cacheData(cacheKey, photo);
-
     return photo;
   } catch (error) {
-    console.error("Błąd podczas pobierania zdjęcia:", error);
     return null;
   }
 };
 
-/**
- * Pobiera popularne zdjęcia.
- */
 export const fetchTrendingPhotos = async (page = 1) => {
   const cacheKey = `trending_photos_page_${page}`;
   const cachedPhotos = getCache(cacheKey);
@@ -96,7 +79,6 @@ export const fetchTrendingPhotos = async (page = 1) => {
   }
 
   if (!checkRateLimit()) {
-    console.log("Limit requestów wyczerpany. Poczekaj do resetu.");
     return [];
   }
 
@@ -104,28 +86,19 @@ export const fetchTrendingPhotos = async (page = 1) => {
 
   try {
     const response = await axiosInstance.get(url);
-
     const photos = response.data;
-
-    console.log("Dane pobrane z API:", photos);
     cacheData(cacheKey, photos);
-
     return photos;
   } catch (error) {
-    console.error("Błąd podczas pobierania popularnych zdjęć:", error);
     return [];
   }
 };
 
-/**
- * Pobiera kolekcje zdjęć.
- */
 export const fetchCollections = async (page = 1, perPage = 10) => {
   const cacheKey = `collections_page_${page}_perPage_${perPage}`;
   const cachedCollections = getCache(cacheKey);
 
   if (cachedCollections) {
-    console.log("Pobrano kolekcje z cache.");
     return cachedCollections.filter(
       (collection) =>
         collection.user?.username !== "plus" &&
@@ -137,7 +110,6 @@ export const fetchCollections = async (page = 1, perPage = 10) => {
   }
 
   if (!checkRateLimit()) {
-    console.log("Limit API wyczerpany. Poczekaj na reset.");
     return [];
   }
 
@@ -145,7 +117,6 @@ export const fetchCollections = async (page = 1, perPage = 10) => {
 
   try {
     const response = await axiosInstance.get(url);
-
     const filteredCollections = response.data.filter(
       (collection) =>
         collection.user?.username !== "plus" &&
@@ -155,13 +126,14 @@ export const fetchCollections = async (page = 1, perPage = 10) => {
         )
     );
 
-    console.log("Kolekcje (bez Unsplash+ i premium):", filteredCollections);
-
     cacheData(cacheKey, filteredCollections);
 
     return filteredCollections;
   } catch (error) {
-    console.error("Błąd podczas pobierania kolekcji:", error);
     return [];
   }
+};
+
+export const useRequestCounter = () => {
+  return useRateLimitStore((state) => state.remaining);
 };

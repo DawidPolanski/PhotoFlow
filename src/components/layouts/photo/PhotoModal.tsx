@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import CloseIcon from "../../shared/assets/icons/CloseIcon";
 import NewTabIcon from "../../shared/assets/icons/NewTabIcon";
@@ -11,6 +11,7 @@ import Spinner from "../../ui/Spinner";
 import ColorThief from "colorthief";
 import { Photo } from "../../../types/Photo";
 import { throttle } from "lodash";
+import ReactDOM from "react-dom";
 
 interface PhotoModalProps {
   photoId: string;
@@ -152,20 +153,23 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     setMagnifierMode(false);
   };
 
-  const handleMouseMove = throttle((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!magnifierMode || !modalRef.current || isMobile) return;
-    const container = modalRef.current.querySelector(".relative.group");
-    if (!container) return;
-    const rect = container.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    setMagnifierPosition({
-      x,
-      y,
-      width: rect.width,
-      height: rect.height,
-    });
-  }, 50);
+  const handleMouseMove = useCallback(
+    throttle((e: React.MouseEvent<HTMLDivElement>) => {
+      if (!magnifierMode || !modalRef.current || isMobile) return;
+      const container = modalRef.current.querySelector(".relative.group");
+      if (!container) return;
+      const rect = container.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      setMagnifierPosition({
+        x,
+        y,
+        width: rect.width,
+        height: rect.height,
+      });
+    }, 16),
+    [magnifierMode, isMobile]
+  );
 
   const handleColorHover = (index: number) => {
     if (isMobile) return;
@@ -192,7 +196,32 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   };
 
   if (loading) {
-    return <Spinner />;
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
+        <Spinner />
+      </div>
+    );
+  }
+
+  // Add error modal fallback when photo fails to load
+  if (!photo) {
+    return ReactDOM.createPortal(
+      <div
+        className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50"
+        onClick={onClose}
+      >
+        <div className="bg-white p-4 rounded-lg text-center">
+          <p>Nie udało się załadować zdjęcia.</p>
+          <button
+            onClick={onClose}
+            className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+          >
+            Zamknij
+          </button>
+        </div>
+      </div>,
+      document.body
+    );
   }
 
   const isPortrait = photo.height > photo.width;

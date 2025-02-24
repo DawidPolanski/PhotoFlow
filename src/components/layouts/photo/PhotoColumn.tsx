@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import { Photo } from "../../../types/Photo";
 import PhotoCard from "./PhotoCard";
 import LoadingSkeleton from "../search/LoadingSkeleton";
+
 interface PhotoColumnProps {
   photos: Photo[];
   hoveredPhoto: Photo | null;

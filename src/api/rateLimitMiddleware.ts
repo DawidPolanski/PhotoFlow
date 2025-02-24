@@ -1,5 +1,5 @@
 import { InternalAxiosRequestConfig, AxiosResponse } from "axios";
-import {
+import useRateLimitStore from "../store/useStore";
   checkRateLimit,
   updateRateLimit,
   getRemainingRequests,
