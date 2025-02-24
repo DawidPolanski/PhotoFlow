@@ -203,7 +203,6 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     );
   }
 
-  // Add error modal fallback when photo fails to load
   if (!photo) {
     return ReactDOM.createPortal(
       <div

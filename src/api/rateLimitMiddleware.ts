@@ -1,9 +1,5 @@
 import { InternalAxiosRequestConfig, AxiosResponse } from "axios";
-import useRateLimitStore from "../store/useStore";
-  checkRateLimit,
-  updateRateLimit,
-  getRemainingRequests,
-} from "../utils/rateLimitUtils";
+import { checkRateLimit, updateRateLimit, getRemainingRequests } from "../utils/rateLimitUtils";
 
 export const rateLimitMiddleware = (config: InternalAxiosRequestConfig) => {
   if (checkRateLimit()) {
