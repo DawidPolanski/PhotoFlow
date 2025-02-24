@@ -73,10 +73,6 @@ const CollectionPhotos: React.FC = () => {
     }
   }, [loading]);
 
-  if (loading && page === 1) {
-    return <LoadingSkeleton />;
-  }
-
   if (error && page === 1) {
     return (
       <div className="w-full text-center py-8">
@@ -96,7 +92,6 @@ const CollectionPhotos: React.FC = () => {
         onTagClick={handleTagClick}
         loading={loading && page === 1}
       />
-      {loading && page > 1 && <LoadingSkeleton />}
     </div>
   );
 };

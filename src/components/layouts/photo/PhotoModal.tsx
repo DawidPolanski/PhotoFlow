@@ -71,33 +71,43 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   }, [photoId]);
 
   useEffect(() => {
-    if (photo?.exif && Object.keys(photo.exif).length > 0) {
+    const initTippy = () => {
       const tooltipElement = document.querySelector(".info-icon");
-      tippy(tooltipElement, {
-        content: `
-          <div class="text-left">
-            <p><strong>Make:</strong> ${photo.exif.make || "N/A"}</p>
-            <p><strong>Model:</strong> ${photo.exif.model || "N/A"}</p>
-            <p><strong>Aperture:</strong> f/${photo.exif.aperture || "N/A"}</p>
-            <p><strong>Exposure:</strong> ${
-              photo.exif.exposure_time || "N/A"
-            }</p>
-            <p><strong>Focal Length:</strong> ${
-              photo.exif.focal_length || "N/A"
-            }mm</p>
-            <p><strong>ISO:</strong> ${photo.exif.iso || "N/A"}</p>
-          </div>
-        `,
-        allowHTML: true,
-        placement: "top",
-        theme: "translucent",
-        followCursor: true,
-        plugins: [followCursor],
-        animation: "scale-subtle",
-      });
-    }
-  }, [photo]);
+      if (tooltipElement && photo?.exif && Object.keys(photo.exif).length > 0) {
+        tippy(tooltipElement, {
+          content: `
+            <div class="text-left">
+              <p><strong>Make:</strong> ${photo.exif.make || "N/A"}</p>
+              <p><strong>Model:</strong> ${photo.exif.model || "N/A"}</p>
+              <p><strong>Aperture:</strong> f/${
+                photo.exif.aperture || "N/A"
+              }</p>
+              <p><strong>Exposure:</strong> ${
+                photo.exif.exposure_time || "N/A"
+              }</p>
+              <p><strong>Focal Length:</strong> ${
+                photo.exif.focal_length || "N/A"
+              }mm</p>
+              <p><strong>ISO:</strong> ${photo.exif.iso || "N/A"}</p>
+            </div>
+          `,
+          allowHTML: true,
+          placement: "top",
+          theme: "translucent",
+          followCursor: true,
+          plugins: [followCursor],
+          animation: "scale-subtle",
+        });
+      }
+    };
 
+    initTippy();
+
+    const observer = new MutationObserver(initTippy);
+    observer.observe(document.body, { childList: true, subtree: true });
+
+    return () => observer.disconnect();
+  }, [photo]);
   useEffect(() => {
     if (photo) {
       const img = new Image();
