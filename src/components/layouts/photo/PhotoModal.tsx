@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion } from "framer-motion";
 import CloseIcon from "../../shared/assets/icons/CloseIcon";
 import NewTabIcon from "../../shared/assets/icons/NewTabIcon";
@@ -8,8 +8,8 @@ import "tippy.js/dist/tippy.css";
 import { fetchPhoto } from "../../../api/useUnsplash";
 import Spinner from "../../ui/Spinner";
 import ColorThief from "colorthief";
-import { Photo } from "../../../types/Photo";
 import ReactDOM from "react-dom";
+import type { Photo } from "../../../types/Photo";
 
 interface PhotoModalProps {
   photoId: string;
@@ -92,7 +92,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
 
   useEffect(() => {
     if (photo?.exif && Object.keys(photo.exif).length > 0) {
-      const tooltipElement = document.querySelector(".info-icon");
+      const tooltipElement = document.querySelector(".info-icon") as any;
       if (tooltipElement && !tooltipElement._tippy) {
         tippy(tooltipElement, {
           content: `
@@ -125,12 +125,22 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (modalRef.current && !modalRef.current.contains(e.target as Node)) {
-        // ...existing code...
+        onClose();
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 1024);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
     };
   }, []);
 
@@ -209,7 +219,9 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
         />
       </motion.div>
       <motion.div
-        className={`flex flex-col lg:flex-row w-[90%] lg:w-[80%] xl:w-[75%] max-w-[1600px] max-h-[90vh] relative rounded-lg overflow-y-auto shadow-lg bg-white`}
+        className={`flex flex-col lg:flex-row w-[90%] lg:w-[80%] xl:w-[75%] max-w-[1600px] max-h-[90vh] relative rounded-lg overflow-y-auto shadow-lg bg-white ${
+          isMobile ? "overflow-x-hidden" : ""
+        }`}
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.3 }}
@@ -252,7 +264,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
         <div
           className={`space-y-6 bg-white px-8 py-6 ${
             isPortrait ? "lg:flex-[2]" : "lg:flex-[1.5]"
-          } relative flex flex-col min-h-[200px]`}
+          } relative flex flex-col min-h-[200px] min-w-[300px]`}
         >
           <div className="flex items-center space-x-4 border-b pb-4">
             <img

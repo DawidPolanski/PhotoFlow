@@ -4,28 +4,51 @@ interface Tag {
 
 export interface Photo {
   id: string;
-  urls: {
-    small: string;
-    regular: string;
-  };
+  created_at: string;
+  width: number;
+  height: number;
+  color: string;
+  blur_hash: string;
+  description: string;
   alt_description: string;
+  urls: {
+    raw: string;
+    full: string;
+    regular: string;
+    small: string;
+    thumb: string;
+  };
+  links: {
+    self: string;
+    html: string;
+    download: string;
+    download_location: string;
+  };
+  categories: any[];
   likes: number;
+  views: number;
   user: {
+    id: string;
+    username: string;
     name: string;
     profile_image: {
       small: string;
-      normal: string;
+      medium: string;
+      large: string;
     };
   };
-  tags?: Tag[];
-  created_at?: string;
-  views?: number;
+  location?: {
+    name?: string;
+    city?: string;
+    country?: string;
+  };
   exif?: {
     make?: string;
     model?: string;
-    aperture?: string;
     exposure_time?: string;
+    aperture?: string;
     focal_length?: string;
-    iso?: string;
+    iso?: number;
   };
+  tags?: { title: string }[];
 }
