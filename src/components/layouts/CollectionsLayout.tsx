@@ -7,7 +7,7 @@ interface CollectionLayoutProps {
 
 const CollectionLayout: React.FC<CollectionLayoutProps> = ({ children }) => {
   return (
-    <div className="flex flex-col  bg-white min-w-[50vh]">
+    <div className="flex flex-col bg-white min-w-full sm:min-w-[100vh]">
       <Navbar />
       <main className="flex-1">
         <div className="container mx-auto px-4">{children}</div>
