@@ -10,6 +10,7 @@ import Spinner from "../../ui/Spinner";
 import ColorThief from "colorthief";
 import ReactDOM from "react-dom";
 import type { Photo } from "../../../types/Photo";
+
 interface PhotoModalProps {
   photoId: string;
   onClose: () => void;
@@ -70,6 +71,34 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   }, [photoId]);
 
   useEffect(() => {
+    if (photo?.exif && Object.keys(photo.exif).length > 0) {
+      const tooltipElement = document.querySelector(".info-icon");
+      tippy(tooltipElement, {
+        content: `
+          <div class="text-left">
+            <p><strong>Make:</strong> ${photo.exif.make || "N/A"}</p>
+            <p><strong>Model:</strong> ${photo.exif.model || "N/A"}</p>
+            <p><strong>Aperture:</strong> f/${photo.exif.aperture || "N/A"}</p>
+            <p><strong>Exposure:</strong> ${
+              photo.exif.exposure_time || "N/A"
+            }</p>
+            <p><strong>Focal Length:</strong> ${
+              photo.exif.focal_length || "N/A"
+            }mm</p>
+            <p><strong>ISO:</strong> ${photo.exif.iso || "N/A"}</p>
+          </div>
+        `,
+        allowHTML: true,
+        placement: "top",
+        theme: "translucent",
+        followCursor: true,
+        plugins: [followCursor],
+        animation: "scale-subtle",
+      });
+    }
+  }, [photo]);
+
+  useEffect(() => {
     if (photo) {
       const img = new Image();
       img.src = photo.urls.regular;
@@ -98,8 +127,9 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       ) as HTMLElement;
       if (
         tooltipElement &&
-        !(tooltipElement as HTMLElement & { _tippy?: any })._tippy
+        !(tooltipElement as HTMLElement & { _tippy?: unknown })._tippy
       ) {
+        console.log("Initializing tippy for element:", tooltipElement);
         tippy(tooltipElement, {
           content: `
             <div class="text-left">
@@ -124,6 +154,8 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
           plugins: [followCursor],
           animation: "scale-subtle",
         });
+      } else {
+        console.log("Tooltip element not found or already initialized.");
       }
     }
   }, [photo]);
@@ -218,13 +250,17 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     >
       <motion.div
         onClick={onClose}
-        className="fixed top-4 right-4 z-50 p-0 m-0 border-none bg-transparent cursor-pointer"
+        className={`fixed top-4 right-4 z-50 p-0 m-0 border-none bg-transparent cursor-pointer ${
+          isMobile && window.innerWidth <= 768 ? "w-4 h-4" : "w-8 h-8"
+        }`}
         whileHover={{ scale: isMobile ? 1 : 1.1 }}
         whileTap={{ scale: 0.9 }}
       >
         <CloseIcon
-          className="w-8 h-8 text-white hover:opacity-80 transition-opacity"
+          className="text-white hover:opacity-80 transition-opacity"
           aria-label="Close modal"
+          width={isMobile && window.innerWidth <= 768 ? 16 : 32}
+          height={isMobile && window.innerWidth <= 768 ? 16 : 32}
         />
       </motion.div>
       <motion.div
@@ -248,13 +284,13 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
           />
           {!isMobile && (
             <>
-              <div className="absolute bottom-4 right-4 z-50 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out">
+              <div className="absolute bottom-4 right-4 z-50 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition duration-300 ease-out">
                 <InfoIcon
                   className="w-6 h-6 text-white info-icon select-none focus:outline-none"
                   aria-label="Show EXIF information"
                 />
               </div>
-              <div className="absolute top-4 right-4 z-50 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition-opacity transition-transform duration-300 ease-out">
+              <div className="absolute top-4 right-4 z-50 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition duration-300 ease-out">
                 <a
                   href={photo.urls.regular}
                   target="_blank"
