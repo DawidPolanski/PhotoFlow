@@ -29,8 +29,12 @@ const Header: React.FC<HeaderProps> = ({ scrolling }) => {
         className={`text-center font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-blue-400 bg-200% animate-gradient-wave transition-all duration-300 ease-in-out p-4 w-fit ${
           isMobile
             ? scrolling
-              ? "text-lg"
+              ? "text-lg hidden"
               : "text-3xl"
+            : window.innerWidth < 1024
+            ? scrolling
+              ? "text-xl hidden"
+              : "text-4xl"
             : scrolling
             ? "text-2xl"
             : "text-5xl"
@@ -41,8 +45,12 @@ const Header: React.FC<HeaderProps> = ({ scrolling }) => {
           className={`font-dancing transition-all duration-300 ease-in-out ${
             isMobile
               ? scrolling
-                ? "text-xl"
+                ? "text-xl hidden"
                 : "text-4xl"
+              : window.innerWidth < 1024
+              ? scrolling
+                ? "text-2xl hidden"
+                : "text-5xl"
               : scrolling
               ? "text-3xl"
               : "text-6xl"
