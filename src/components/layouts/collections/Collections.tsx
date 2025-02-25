@@ -10,13 +10,15 @@ interface CollectionsProps {
 const Collections: React.FC<CollectionsProps> = ({ collections }) => {
   const navigate = useNavigate();
 
-  const handleCollectionClick = (collectionId: string) => {
-    navigate(`/collections/${collectionId}`);
+  const handleCollectionClick = (collection: Collection) => {
+    navigate(`/collections/${collection.id}`, { state: { collection } });
   };
 
   return (
     <div className="w-full max-w-6xl mx-auto mb-8 px-4">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">Collections</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800 text-center">
+        Collections
+      </h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {collections.map((collection) => {
           const images =
@@ -45,7 +47,7 @@ const Collections: React.FC<CollectionsProps> = ({ collections }) => {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3 }}
-              onClick={() => handleCollectionClick(collection.id)}
+              onClick={() => handleCollectionClick(collection)}
             >
               <div className="relative grid gap-1">
                 {images[0] && images[0].urls && images[0].urls.small ? (

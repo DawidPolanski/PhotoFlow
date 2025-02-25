@@ -44,3 +44,24 @@ export const fetchPhotos = async (
     return [];
   }
 };
+
+export const fetchCollectionDetails = async (collectionId: string) => {
+  const cacheKey = `collection_details_${collectionId}`;
+  const cachedDetails = getCache(cacheKey);
+
+  if (cachedDetails) {
+    return cachedDetails;
+  }
+
+  try {
+    const url = `/collections/${collectionId}`;
+    const response = await axiosInstance.get(url);
+    updateRateLimit(response);
+    const collectionDetails = response.data;
+    cacheData(cacheKey, collectionDetails);
+    return collectionDetails;
+  } catch (error) {
+    console.error("Error fetching collection details:", error);
+    return null;
+  }
+};
