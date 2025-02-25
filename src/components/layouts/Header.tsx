@@ -20,13 +20,13 @@ const Header: React.FC<HeaderProps> = ({ scrolling }) => {
 
   return (
     <div
-      className={`w-fit mx-auto sticky top-0 bg-transparent z-10 transition-all duration-100 flex justify-center ${
-        scrolling ? "top-0" : "top-[-30px]"
+      className={`w-fit mx-auto sticky top-0 bg-transparent z-10 transition-transform duration-300 ease-in-out flex justify-center ${
+        scrolling ? "translate-y-0" : "translate-y-[-30px]"
       }`}
       style={{ zIndex: 50 }}
     >
       <h1
-        className={`text-center font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-blue-400 bg-200% animate-gradient-wave transition-all duration-100 p-4 w-fit ${
+        className={`text-center font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-blue-400 bg-200% animate-gradient-wave transition-all duration-300 ease-in-out p-4 w-fit ${
           isMobile
             ? scrolling
               ? "text-lg"
@@ -34,11 +34,11 @@ const Header: React.FC<HeaderProps> = ({ scrolling }) => {
             : scrolling
             ? "text-2xl"
             : "text-5xl"
-        } ${isMobile && scrolling ? "opacity-0" : "opacity-100"}`}
+        }`}
       >
         Find beautiful images that{" "}
         <span
-          className={`font-dancing transition-all duration-100 ${
+          className={`font-dancing transition-all duration-300 ease-in-out ${
             isMobile
               ? scrolling
                 ? "text-xl"

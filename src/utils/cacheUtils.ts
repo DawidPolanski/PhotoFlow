@@ -1,5 +1,5 @@
 const MAX_CACHE_SIZE = 100;
-const MAX_ITEM_SIZE = 1024 * 1024; // 1 MB
+const MAX_ITEM_SIZE = 1024 * 1024;
 
 const getAvailableStorage = async () => {
   if (navigator.storage && navigator.storage.estimate) {
@@ -15,7 +15,6 @@ const clearSpaceForNewItem = async (newItemSize: number) => {
     let oldestTimestamp = Infinity;
     let oldestItemSize = 0;
 
-    // Check items in localStorage for the oldest item and their sizes
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key) {
@@ -39,7 +38,6 @@ const clearSpaceForNewItem = async (newItemSize: number) => {
       }
     }
 
-    // Check if the item in sessionStorage should be deleted next
     if (!oldestKey && sessionStorage.length > 0) {
       for (let i = 0; i < sessionStorage.length; i++) {
         const key = sessionStorage.key(i);
@@ -65,7 +63,6 @@ const clearSpaceForNewItem = async (newItemSize: number) => {
       }
     }
 
-    // Remove the oldest item to make space
     if (oldestKey) {
       if (oldestItemSize <= MAX_ITEM_SIZE) {
         localStorage.removeItem(oldestKey);

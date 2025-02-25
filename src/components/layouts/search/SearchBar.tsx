@@ -72,9 +72,9 @@ const SearchBar: React.FC<SearchBarProps> = ({
         onFocus={() => setIsActive(true)}
         placeholder="Search for images..."
         className="w-full px-6 py-3 border border-transparent rounded-full shadow-lg text-gray-700 
-                   placeholder-gray-400 bg-gradient-to-r from-blue-100 via-purple-100 to-blue-100
-                   focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-50
-                   focus:scale-105 transition-all duration-150 ease-in-out transform"
+             placeholder-tiffany-blue bg-gradient-to-r from-blue-100 via-purple-100 to-blue-100
+             focus:outline-none focus:ring-4 focus:ring-blue-400 focus:ring-opacity-50
+             focus:scale-105 transition-all duration-150 ease-in-out transform"
       />
       {query && (
         <div
@@ -111,7 +111,20 @@ const SearchBar: React.FC<SearchBarProps> = ({
             </div>
           </div>
           <div>
-            <h3 className="text-lg font-semibold mb-2">Recent Searches</h3>
+            <h3 className="text-lg font-semibold mb-2 flex justify-between items-center">
+              Recent Searches
+              <span
+                onClick={() => {
+                  onClearRecentSearches();
+                  setIsActive(false);
+                }}
+                className="text-sm text-red-500 hover:text-red-700 cursor-pointer"
+              >
+                Clear
+              </span>
+            </h3>
+
+            <div className=""></div>
             {recentSearches.length > 0 ? (
               <>
                 <div className="grid grid-cols-2 gap-3">
@@ -131,15 +144,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
                     </div>
                   ))}
                 </div>
-                <button
-                  onClick={() => {
-                    onClearRecentSearches();
-                    setIsActive(false);
-                  }}
-                  className="mt-2 text-sm text-red-500 hover:text-red-700"
-                >
-                  Clear
-                </button>
               </>
             ) : (
               <p className="text-gray-500">No recent searches.</p>

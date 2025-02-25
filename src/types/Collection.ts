@@ -19,4 +19,6 @@ export interface Collection {
       small: string;
     };
   }>;
+  total_photos: number;
+  published_at: string;
 }

@@ -6,6 +6,17 @@ import LoadingSkeleton from "../search/LoadingSkeleton";
 import { Photo } from "../../../types/Photo";
 import { Collection } from "../../../types/Collection";
 
+const throttle = (func: (...args: unknown[]) => void, limit: number) => {
+  let inThrottle: boolean;
+  return (...args: unknown[]) => {
+    if (!inThrottle) {
+      func(...args);
+      inThrottle = true;
+      setTimeout(() => (inThrottle = false), limit);
+    }
+  };
+};
+
 const CollectionPhotos: React.FC = () => {
   const { collectionId } = useParams<{ collectionId: string }>();
   const navigate = useNavigate();
@@ -77,10 +88,16 @@ const CollectionPhotos: React.FC = () => {
     loadCollectionPhotos();
   }, [loadCollectionPhotos]);
 
-  const handleScroll = () => {
+  const handleScroll = useCallback(() => {
     const scrollY = window.scrollY;
-    setScrolling(scrollY > 50);
+    const isScrollingDown = scrollY > scrollPosition.current;
     scrollPosition.current = scrollY;
+
+    if (isScrollingDown && scrollY > 50) {
+      setScrolling(true);
+    } else if (scrollY <= 50) {
+      setScrolling(false);
+    }
 
     if (
       window.innerHeight + scrollY >=
@@ -88,14 +105,15 @@ const CollectionPhotos: React.FC = () => {
     ) {
       setPage((prevPage) => prevPage + 1);
     }
-  };
+  }, []);
 
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
+    const throttledScroll = throttle(handleScroll, 50);
+    window.addEventListener("scroll", throttledScroll);
     return () => {
-      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("scroll", throttledScroll);
     };
-  }, []);
+  }, [handleScroll]);
 
   useEffect(() => {
     if (!loading) {
@@ -115,13 +133,13 @@ const CollectionPhotos: React.FC = () => {
     <div className="w-full mx-auto px-4 pt-[100px]">
       {collection && (
         <div
-          className={`w-fit mx-auto sticky top-0 bg-transparent z-10 transition-all duration-100 flex justify-center ${
-            scrolling ? "top-0" : "top-[-30px]"
+          className={`w-fit mx-auto sticky top-0 bg-transparent z-10 transition-transform duration-200 ease-in-out flex justify-center ${
+            scrolling ? "translate-y-0" : "translate-y-[-30px]"
           }`}
           style={{ zIndex: 50 }}
         >
           <h1
-            className={`text-center font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-blue-400 bg-200% animate-gradient-wave transition-all duration-100 p-4 w-fit ${
+            className={`text-center font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-blue-400 bg-200% animate-gradient-wave transition-all duration-200 ease-in-out p-4 w-fit ${
               isMobile
                 ? scrolling
                   ? "text-lg"
@@ -129,15 +147,15 @@ const CollectionPhotos: React.FC = () => {
                 : scrolling
                 ? "text-2xl"
                 : "text-5xl"
-            } ${isMobile && scrolling ? "opacity-0" : "opacity-100"}`}
+            }`}
           >
             {collection.title}{" "}
           </h1>
         </div>
       )}
 
-      {collection && !scrolling && (
-        <div className="text-center mb-8">
+      {collection && (
+        <div className="text-center mb-8 max-w-2xl mx-auto">
           {collection.description && (
             <p className="text-gray-600 mb-4">{collection.description}</p>
           )}
