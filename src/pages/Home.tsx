@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
+import { useLocation } from "react-router-dom";
 import {
   fetchPhotos,
   fetchTrendingPhotos,
@@ -14,6 +15,7 @@ import { Collection } from "../types/Collection";
 import LoadingSkeleton from "../components/layouts/search/LoadingSkeleton";
 
 const Home: React.FC = () => {
+  const location = useLocation();
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,6 +35,14 @@ const Home: React.FC = () => {
       setRecentSearches(JSON.parse(savedSearches));
     }
   }, []);
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tag = params.get("tag");
+    if (tag) {
+      setQuery(tag);
+    }
+  }, [location.search]);
 
   const updateRecentSearches = (searchTerm: string) => {
     setRecentSearches((prevSearches) => {

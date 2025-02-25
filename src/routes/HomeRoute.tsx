@@ -18,6 +18,14 @@ const HomeRoutes: React.FC = () => {
         }
       />
       <Route
+        path="/home"
+        element={
+          <MainLayout>
+            <Home />
+          </MainLayout>
+        }
+      />
+      <Route
         path="/collections"
         element={
           <MainLayout>

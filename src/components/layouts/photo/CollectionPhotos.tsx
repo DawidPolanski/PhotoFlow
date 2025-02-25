@@ -121,6 +121,10 @@ const CollectionPhotos: React.FC = () => {
     }
   }, [loading]);
 
+  const handleTagClick = (tag: string) => {
+    navigate(`/home?tag=${tag}`);
+  };
+
   if (error && page === 1) {
     return (
       <div className="w-full text-center py-8">
@@ -189,10 +193,7 @@ const CollectionPhotos: React.FC = () => {
       {loading && page === 1 ? (
         <LoadingSkeleton />
       ) : (
-        <PhotoGrid
-          photos={photos}
-          onTagClick={(tag) => navigate(`/search/${tag}`)}
-        />
+        <PhotoGrid photos={photos} onTagClick={handleTagClick} />
       )}
 
       {loading && page > 1 && <LoadingSkeleton />}
