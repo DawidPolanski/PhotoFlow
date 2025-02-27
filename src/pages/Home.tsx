@@ -26,6 +26,8 @@ const Home: React.FC = () => {
   const [showCollections, setShowCollections] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [showSearchBar, setShowSearchBar] = useState(true);
+  const [showArrow, setShowArrow] = useState(false);
   const loadingRef = useRef(false);
   const scrollPosition = useRef(0);
 
@@ -134,8 +136,12 @@ const Home: React.FC = () => {
 
     if (currentScrollY > 1) {
       setScrolling(true);
+      setShowSearchBar(false);
+      setShowArrow(true);
     } else {
       setScrolling(false);
+      setShowSearchBar(true);
+      setShowArrow(false);
     }
   };
 
@@ -179,7 +185,44 @@ const Home: React.FC = () => {
       <div className="flex flex-col items-center min-h-screen px-4 py-8 pt-24">
         <Header scrolling={scrolling} />
 
-        <div className="w-full flex justify-center mb-8 mt-8 sticky top-20 z-20">
+        {showArrow && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3 }}
+            className="fixed top-[4.5rem] left-1/2 transform -translate-x-1/2 cursor-pointer z-30"
+            onClick={() => setShowSearchBar((prev) => !prev)}
+          >
+            <div className="bg-white rounded-full p-1 shadow-lg">
+              <motion.svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6 text-blue-500"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                initial={{ rotate: showSearchBar ? 0 : 180 }}
+                animate={{ rotate: showSearchBar ? 0 : 180 }}
+                transition={{ duration: 0.3 }}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </motion.svg>
+            </div>
+          </motion.div>
+        )}
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{
+            opacity: showSearchBar ? 1 : 0,
+            y: showSearchBar ? 0 : -20,
+          }}
+          transition={{ duration: 0.3 }}
+          className="w-full max-w-2xl sticky top-24 z-20 mb-8 mx-auto"
+        >
           <SearchBar
             query={searchQuery}
             onChange={handleQueryChange}
@@ -188,8 +231,7 @@ const Home: React.FC = () => {
             onClearRecentSearches={clearRecentSearches}
             onCategoryClick={handleCategoryClick}
           />
-        </div>
-
+        </motion.div>
         {error && <div className="text-red-500 text-center">{error}</div>}
 
         {showCollections ? (
