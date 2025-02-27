@@ -61,7 +61,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   return (
     <div
-      className="w-full max-w-xl relative flex items-center gap-2"
+      className="w-full max-w-2xl relative flex items-center gap-2"
       ref={searchBarRef}
     >
       <input
