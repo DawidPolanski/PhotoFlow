@@ -4,6 +4,7 @@ import { Photo } from "../../../types/Photo";
 import PhotoColumn from "../photo/PhotoColumn";
 import PhotoModal from "./PhotoModal";
 import LoadingSkeleton from "../search/LoadingSkeleton";
+import useRateLimitStore from "../../../store/useStore";
 
 interface PhotoGridProps {
   photos: Photo[];
@@ -16,6 +17,7 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({
   onTagClick,
   loading,
 }) => {
+  const { remaining } = useRateLimitStore();
   const [hoveredPhoto, setHoveredPhoto] = useState<Photo | null>(null);
   const [selectedPhotoId, setSelectedPhotoId] = useState<string | null>(null);
   const [columns, setColumns] = useState<Photo[][]>([]);
@@ -67,6 +69,10 @@ const PhotoGrid: React.FC<PhotoGridProps> = ({
   };
 
   const openModal = (photoId: string) => {
+    if (remaining !== null && remaining <= 0) {
+      console.warn("Rate limit exhausted. Cannot open modal.");
+      return;
+    }
     setSelectedPhotoId(photoId);
   };
 

@@ -1,4 +1,4 @@
-import axiosInstance from "./axiosInstance";
+import { axiosInstance } from "../api/axiosInstance";
 import { updateRateLimit } from "../utils/rateLimitUtils";
 import { getCache, cacheData } from "../utils/cacheUtils";
 

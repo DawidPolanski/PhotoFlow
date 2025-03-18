@@ -21,10 +21,6 @@ export const fetchPhotos = async (
     return cachedPhotos;
   }
 
-  if (!checkRateLimit()) {
-    return [];
-  }
-
   const url = collectionId
     ? `/collections/${collectionId}/photos`
     : "/search/photos";
@@ -44,7 +40,6 @@ export const fetchPhotos = async (
     return [];
   }
 };
-
 export const fetchPhoto = async (id: string) => {
   const cacheKey = `photo_${id}`;
   const cachedPhoto = getCache(cacheKey);

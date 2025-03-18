@@ -5,7 +5,10 @@ const RateLimitBanner = () => {
   const { remaining } = useRateLimitStore();
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
 
+  console.log("RateLimitBanner: remaining =", remaining);
+
   useEffect(() => {
+    console.log("RateLimitBanner: useEffect - obliczam czas do resetu");
     const updateTimer = () => {
       const now = new Date();
       const nextHour = new Date(
@@ -25,11 +28,11 @@ const RateLimitBanner = () => {
     return () => clearInterval(interval);
   }, []);
 
-  if (remaining === null || remaining > 1) {
-    return null;
-  }
-
-  if (timeLeft !== null && timeLeft <= 0) {
+  if (remaining === null || remaining > 0) {
+    console.log(
+      "RateLimitBanner: Banner nie wyświetlany, remaining =",
+      remaining
+    );
     return null;
   }
 
@@ -39,8 +42,10 @@ const RateLimitBanner = () => {
     return `${minutes > 0 ? `${minutes}m ` : ""}${seconds}s`;
   };
 
+  console.log("RateLimitBanner: Banner wyświetlany, remaining =", remaining);
+
   return (
-    <div className="fixed top-0 left-0 right-0 bg-red-600 text-white text-center p-2 z-50">
+    <div className="fixed top-0 left-0 right-0 bg-red-600 text-white text-center p-2 z-[9999]">
       <p>
         Limit requestów wyczerpany. Spróbuj ponownie za{" "}
         {timeLeft !== null ? formatTimeLeft(timeLeft) : "..."}.
