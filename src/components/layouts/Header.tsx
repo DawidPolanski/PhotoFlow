@@ -20,13 +20,12 @@ const Header: React.FC<HeaderProps> = ({ scrolling }) => {
 
   return (
     <div
-      className={`w-fit mx-auto sticky top-0 bg-transparent z-10 transition-transform duration-300 ease-in-out flex justify-center ${
-        scrolling ? "translate-y-0" : "translate-y-[-30px]"
+      className={`w-full sticky top-0 bg-transparent z-50 transition-transform duration-300 ease-in-out flex items-center justify-center h-16 ${
+        scrolling ? "translate-y-0" : "-translate-y-8"
       }`}
-      style={{ zIndex: 50 }}
     >
       <h1
-        className={`text-center font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-blue-400 bg-200% animate-gradient-wave transition-all duration-300 ease-in-out p-4 w-fit ${
+        className={`text-center font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-purple-500 to-blue-400 bg-200% animate-gradient-wave transition-all duration-300 ease-in-out ${
           isMobile
             ? scrolling
               ? "text-lg hidden"

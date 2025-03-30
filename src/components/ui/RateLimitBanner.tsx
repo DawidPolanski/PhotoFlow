@@ -45,9 +45,9 @@ const RateLimitBanner = () => {
   console.log("RateLimitBanner: Banner wyświetlany, remaining =", remaining);
 
   return (
-    <div className="fixed top-0 left-0 right-0 bg-red-600 text-white text-center p-2 z-[9999]">
+    <div className="fixed top-0 left-0 right-0 bg-red-600 text-white text-center z-[9999] h-[64px] flex flex-col items-center justify-center">
       <p>
-        Limit requestów wyczerpany. Spróbuj ponownie za{" "}
+        Request limit exceeded. Please try again in{" "}
         {timeLeft !== null ? formatTimeLeft(timeLeft) : "..."}.
       </p>
     </div>

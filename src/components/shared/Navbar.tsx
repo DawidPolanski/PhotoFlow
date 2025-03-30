@@ -27,9 +27,9 @@ const Navbar: React.FC = () => {
         isScrolled
           ? "bg-white bg-opacity-90 backdrop-blur-lg text-black shadow-lg"
           : "bg-white text-black"
-      } p-4 fixed w-full top-0 left-0 z-50 transition-all duration-300 ease-in-out`}
+      } p-4 fixed w-full top-0 left-0 z-50 transition-all duration-300 ease-in-out h-16`}
     >
-      <div className="container mx-auto flex justify-between items-center">
+      <div className="container mx-auto flex justify-between items-center h-full">
         <Link
           to="/"
           className="text-2xl font-bold hover:text-blue-500 flex items-center"
