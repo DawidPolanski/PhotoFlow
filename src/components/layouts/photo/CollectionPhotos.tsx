@@ -2,7 +2,6 @@ import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { fetchPhotos, fetchCollectionDetails } from "../../../api/PhotoService";
 import PhotoGrid from "./PhotoGrid";
-import LoadingSkeleton from "../search/LoadingSkeleton";
 import { Photo } from "../../../types/Photo";
 import { Collection } from "../../../types/Collection";
 
@@ -65,16 +64,9 @@ const CollectionPhotos: React.FC = () => {
 
       if (fetchedPhotos.length === 0) {
         setError("No more photos to load.");
+      } else {
+        setPhotos((prevPhotos) => [...prevPhotos, ...fetchedPhotos]);
       }
-      setPhotos((prevPhotos) => {
-        const newPhotos = fetchedPhotos.filter(
-          (newPhoto) =>
-            !prevPhotos.some(
-              (existingPhoto) => existingPhoto.id === newPhoto.id
-            )
-        );
-        return [...prevPhotos, ...newPhotos];
-      });
     } catch (error) {
       console.error("Error fetching collection photos:", error);
       setError("Failed to load photos. Please try again later.");
@@ -190,13 +182,8 @@ const CollectionPhotos: React.FC = () => {
         </div>
       )}
 
-      {loading && page === 1 ? (
-        <LoadingSkeleton />
-      ) : (
-        <PhotoGrid photos={photos} onTagClick={handleTagClick} />
-      )}
+      <PhotoGrid photos={photos} onTagClick={handleTagClick} />
 
-      {loading && page > 1 && <LoadingSkeleton />}
       {error && page > 1 && (
         <div className="w-full text-center py-8">
           <p className="text-red-500">{error}</p>
