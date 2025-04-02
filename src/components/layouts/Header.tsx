@@ -20,7 +20,7 @@ const Header: React.FC<HeaderProps> = ({ scrolling }) => {
 
   return (
     <div
-      className={`w-full sticky top-0 bg-transparent z-50 transition-transform duration-300 ease-in-out flex items-center justify-center h-16 ${
+      className={`w-fit sticky top-0 bg-transparent z-50 transition-transform duration-300 ease-in-out flex items-center justify-center h-16 ${
         scrolling ? "translate-y-0" : "-translate-y-8"
       }`}
     >
