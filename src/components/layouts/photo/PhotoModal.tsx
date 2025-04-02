@@ -1,9 +1,9 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion } from "framer-motion";
 import CloseIcon from "../../shared/assets/icons/CloseIcon";
 import NewTabIcon from "../../shared/assets/icons/NewTabIcon";
 import InfoIcon from "../../shared/assets/icons/InfoIcon";
-import tippy, { followCursor } from "tippy.js";
+import tippy from "tippy.js";
 import "tippy.js/dist/tippy.css";
 import { fetchPhoto } from "../../../api/useUnsplash";
 import Spinner from "../../ui/Spinner";
@@ -30,12 +30,13 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   const modalRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
   const [isImageLoaded, setIsImageLoaded] = useState(false);
+  const tippyInstance = useRef<any>(null);
+  const infoIconRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    const checkIsMobile = () => {
-      return window.innerWidth <= 1024;
-    };
+    const checkIsMobile = () => window.innerWidth <= 1024;
     setIsMobile(checkIsMobile());
+
     const meta = document.createElement("meta");
     meta.name = "viewport";
     meta.content =
@@ -62,7 +63,6 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
         setPhoto(fetchedPhoto);
       } catch (error) {
         console.error("Failed to load photo:", error);
-        alert("Nie udało się załadować zdjęcia. Spróbuj ponownie.");
       } finally {
         setLoading(false);
       }
@@ -71,103 +71,57 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   }, [photoId]);
 
   useEffect(() => {
+    if (!photo) return;
+
+    const img = new Image();
+    img.src = photo.urls.regular;
+    img.crossOrigin = "Anonymous";
+    img.onload = () => {
+      setIsImageLoaded(true);
+      try {
+        const colorThief = new ColorThief();
+        const palette = colorThief.getPalette(img, 6);
+        const hexColors = palette.map(
+          (color) =>
+            `#${color.map((c) => c.toString(16).padStart(2, "0")).join("")}`
+        );
+        setColors(hexColors);
+      } catch (error) {
+        console.error("Failed to extract colors:", error);
+      }
+    };
+  }, [photo]);
+
+  useEffect(() => {
+    if (!photo?.exif || Object.keys(photo.exif).length === 0) return;
+
     const initTippy = () => {
-      const tooltipElement = document.querySelector(".info-icon");
-      if (tooltipElement && photo?.exif && Object.keys(photo.exif).length > 0) {
-        tippy(tooltipElement, {
-          content: `
-            <div class="text-left">
-              <p><strong>Make:</strong> ${photo.exif.make || "N/A"}</p>
-              <p><strong>Model:</strong> ${photo.exif.model || "N/A"}</p>
-              <p><strong>Aperture:</strong> f/${
-                photo.exif.aperture || "N/A"
-              }</p>
-              <p><strong>Exposure:</strong> ${
-                photo.exif.exposure_time || "N/A"
-              }</p>
-              <p><strong>Focal Length:</strong> ${
-                photo.exif.focal_length || "N/A"
-              }mm</p>
-              <p><strong>ISO:</strong> ${photo.exif.iso || "N/A"}</p>
-            </div>
-          `,
+      if (tippyInstance.current) {
+        tippyInstance.current.destroy();
+      }
+
+      if (infoIconRef.current) {
+        tippyInstance.current = tippy(infoIconRef.current, {
+          content: createTooltipContent(photo.exif),
           allowHTML: true,
           placement: "top",
           theme: "translucent",
-          followCursor: true,
-          plugins: [followCursor],
           animation: "scale-subtle",
+          interactive: true,
+          appendTo: document.body,
+          maxWidth: 300,
+          duration: [200, 150],
         });
       }
     };
 
-    initTippy();
-
-    const observer = new MutationObserver(initTippy);
-    observer.observe(document.body, { childList: true, subtree: true });
-
-    return () => observer.disconnect();
-  }, [photo]);
-  useEffect(() => {
-    if (photo) {
-      const img = new Image();
-      img.src = photo.urls.regular;
-      img.crossOrigin = "Anonymous";
-      img.onload = () => {
-        setIsImageLoaded(true);
-        const colorThief = new ColorThief();
-        try {
-          const palette = colorThief.getPalette(img, 6);
-          const hexColors = palette.map(
-            (color) =>
-              `#${color.map((c) => c.toString(16).padStart(2, "0")).join("")}`
-          );
-          setColors(hexColors);
-        } catch (error) {
-          console.error("Failed to extract colors:", error);
-        }
-      };
-    }
-  }, [photo]);
-
-  useEffect(() => {
-    if (photo?.exif && Object.keys(photo.exif).length > 0) {
-      const tooltipElement = document.querySelector(
-        ".info-icon"
-      ) as HTMLElement;
-      if (
-        tooltipElement &&
-        !(tooltipElement as HTMLElement & { _tippy?: unknown })._tippy
-      ) {
-        console.log("Initializing tippy for element:", tooltipElement);
-        tippy(tooltipElement, {
-          content: `
-            <div class="text-left">
-              <p><strong>Make:</strong> ${photo.exif.make || "N/A"}</p>
-              <p><strong>Model:</strong> ${photo.exif.model || "N/A"}</p>
-              <p><strong>Aperture:</strong> f/${
-                photo.exif.aperture || "N/A"
-              }</p>
-              <p><strong>Exposure:</strong> ${
-                photo.exif.exposure_time || "N/A"
-              }</p>
-              <p><strong>Focal Length:</strong> ${
-                photo.exif.focal_length || "N/A"
-              }mm</p>
-              <p><strong>ISO:</strong> ${photo.exif.iso || "N/A"}</p>
-            </div>
-          `,
-          allowHTML: true,
-          placement: "top",
-          theme: "translucent",
-          followCursor: true,
-          plugins: [followCursor],
-          animation: "scale-subtle",
-        });
-      } else {
-        console.log("Tooltip element not found or already initialized.");
+    const timer = setTimeout(initTippy, 300);
+    return () => {
+      clearTimeout(timer);
+      if (tippyInstance.current) {
+        tippyInstance.current.destroy();
       }
-    }
+    };
   }, [photo]);
 
   useEffect(() => {
@@ -176,48 +130,50 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
         onClose();
       }
     };
-    document.addEventListener("mousedown", handleClickOutside as EventListener);
-    return () => {
-      document.removeEventListener(
-        "mousedown",
-        handleClickOutside as EventListener
-      );
-    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [onClose]);
 
   useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth <= 1024);
-    };
+    const handleResize = () => setIsMobile(window.innerWidth <= 1024);
     window.addEventListener("resize", handleResize);
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  const handleColorHover = (index: number) => {
-    if (isMobile) return;
-    setActiveColorIndex(index);
-  };
+  const createTooltipContent = (exif: any) => `
+    <div class="text-left">
+      ${Object.entries(exif)
+        .filter(([_, value]) => value)
+        .map(([key, value]) => `<p><strong>${key}:</strong> ${value}</p>`)
+        .join("")}
+    </div>
+  `;
 
-  const handleColorLeave = () => {
-    if (isMobile) return;
-    setActiveColorIndex(null);
-  };
+  const handleColorHover = useCallback(
+    (index: number) => {
+      if (!isMobile) setActiveColorIndex(index);
+    },
+    [isMobile]
+  );
 
-  const handleColorClick = (color: string, index: number) => {
+  const handleColorLeave = useCallback(() => {
+    if (!isMobile) setActiveColorIndex(null);
+  }, [isMobile]);
+
+  const handleColorClick = useCallback((color: string, index: number) => {
     navigator.clipboard.writeText(color).then(() => {
       setCopiedColorIndex(index);
-      setTimeout(() => {
-        setCopiedColorIndex(null);
-      }, 2000);
+      setTimeout(() => setCopiedColorIndex(null), 2000);
     });
-  };
+  }, []);
 
-  const handleTagClick = (tag: string) => {
-    onTagClick(tag);
-    onClose();
-  };
+  const handleTagClick = useCallback(
+    (tag: string) => {
+      onTagClick(tag);
+      onClose();
+    },
+    [onTagClick, onClose]
+  );
 
   if (loading || !isImageLoaded) {
     return (
@@ -229,10 +185,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
 
   if (!photo) {
     return ReactDOM.createPortal(
-      <div
-        className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50"
-        onClick={onClose}
-      >
+      <div className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50">
         <div className="bg-white p-4 rounded-lg text-center">
           <p>Nie udało się załadować zdjęcia.</p>
           <button
@@ -261,7 +214,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       <motion.div
         onClick={onClose}
         className={`fixed top-4 right-4 z-50 p-0 m-0 border-none bg-transparent cursor-pointer ${
-          isMobile && window.innerWidth <= 768 ? "w-4 h-4" : "w-8 h-8"
+          isMobile ? "w-4 h-4" : "w-8 h-8"
         }`}
         whileHover={{ scale: isMobile ? 1 : 1.1 }}
         whileTap={{ scale: 0.9 }}
@@ -269,10 +222,11 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
         <CloseIcon
           className="text-white hover:opacity-80 transition-opacity"
           aria-label="Close modal"
-          width={isMobile && window.innerWidth <= 768 ? 16 : 32}
-          height={isMobile && window.innerWidth <= 768 ? 16 : 32}
+          width={isMobile ? 16 : 32}
+          height={isMobile ? 16 : 32}
         />
       </motion.div>
+
       <motion.div
         className={`flex flex-col lg:flex-row w-[90%] lg:w-[80%] xl:w-[75%] max-w-[1600px] max-h-[90vh] relative rounded-lg overflow-y-auto shadow-lg bg-white ${
           isMobile ? "overflow-x-hidden" : ""
@@ -289,12 +243,16 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
           <img
             src={photo.urls.regular}
             alt={photo.alt_description || "Photo description"}
-            className={`h-full w-full object-cover`}
+            className="h-full w-full object-cover"
             loading="lazy"
           />
+
           {!isMobile && (
             <>
-              <div className="absolute bottom-4 right-4 z-50 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition duration-300 ease-out">
+              <div
+                ref={infoIconRef}
+                className="absolute bottom-4 right-4 z-50 opacity-0 scale-90 group-hover:opacity-100 group-hover:scale-100 transition duration-300 ease-out"
+              >
                 <InfoIcon
                   className="w-6 h-6 text-white info-icon select-none focus:outline-none"
                   aria-label="Show EXIF information"
@@ -359,7 +317,8 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
               <p className="text-black">
                 {photo.alt_description || "No description available"}
               </p>
-              {photo.tags && photo.tags.length > 0 && (
+
+              {photo.tags?.length > 0 && (
                 <div className="mt-4">
                   <h4 className="text-xl font-medium mb-2 text-black">Tags</h4>
                   <div className="flex flex-wrap gap-2">
@@ -405,7 +364,9 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
                   </div>
                 </div>
               )}
+
               <div className="border-t border-gray-300 my-2" />
+
               <div className="flex flex-col space-y-0.5 text-gray-700">
                 {photo.likes && (
                   <div className="text-sm">
